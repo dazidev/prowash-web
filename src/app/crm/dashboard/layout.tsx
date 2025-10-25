@@ -1,4 +1,4 @@
-import { TopNav } from "@/components/dashboard/TopNav";
+import { TopNav } from "@/components/dashboard/topNav/TopNav";
 
 export default function DashboardLayout({
   children

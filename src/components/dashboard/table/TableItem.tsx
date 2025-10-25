@@ -5,9 +5,13 @@ import React from 'react'
 
 interface Props {
   user: User
+  setOpenConfirm: (value: boolean) => void
+  setOpenEdit: (value: boolean) => void
+  setOpenChangePass: (value: boolean) => void
+  setTargetId: React.Dispatch<React.SetStateAction<string>>
 }
 
-export const TableItem = ({ user }: Props) => {
+export const TableItem = ({ user, setOpenConfirm, setOpenEdit, setOpenChangePass, setTargetId}: Props) => {
 
   const { id, name, lastname, email, role, created_at, updated_at, last_connection } = user
 
@@ -15,8 +19,19 @@ export const TableItem = ({ user }: Props) => {
   const fullName = `${name} ${lastname}`
   const formatRole = role.replace('_', ' ')
 
-  const handleRemove = () => {
-    console.log(id)
+  const handleClickDelete = () => {
+    setOpenConfirm(true)
+    setTargetId(id)
+  }
+
+  const handleClickEdit = () => {
+    setOpenEdit(true)
+    setTargetId(id)
+  }
+
+  const handleClickChangePass = () => {
+    setOpenChangePass(true)
+    setTargetId(id)
   }
 
   return (
@@ -48,19 +63,35 @@ export const TableItem = ({ user }: Props) => {
       </td>
       <td className="px-6 py-4">
         <div className="flex items-center gap-2">
-          <button className="w-8 h-8 rounded-md border border-slate-200 hover:border-blue-600 hover:bg-blue-50 hover:text-blue-600 text-slate-500 flex items-center justify-center transition-all">
+
+          <button 
+            className="w-8 h-8 rounded-md border border-slate-200 hover:border-blue-600 hover:bg-blue-50 hover:text-blue-600 text-slate-500 flex items-center justify-center transition-all"
+            onClick={handleClickEdit}
+          >
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M11.5 2.5l2 2L6 12H4v-2L11.5 2.5z" />
             </svg>
           </button>
+
+          <button 
+            className="w-8 h-8 rounded-md border border-slate-200 hover:border-yellow-500 hover:bg-blue-50 hover:text-yellow-500 text-slate-500 flex items-center justify-center transition-all"
+            onClick={handleClickChangePass}
+          >
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2">
+              <rect x="3" y="7" width="10" height="7" rx="1" />
+              <path d="M5 7V5a3 3 0 016 0v2" />
+            </svg>
+          </button>
+
           <button 
             className="w-8 h-8 rounded-md border border-slate-200 hover:border-red-500 hover:bg-red-50 hover:text-red-600 text-slate-500 flex items-center justify-center transition-all"
-            onClick={handleRemove}
+            onClick={handleClickDelete}
           >
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M2 4h12M5 4V3a1 1 0 011-1h4a1 1 0 011 1v1M13 4v9a1 1 0 01-1 1H4a1 1 0 01-1-1V4" />
             </svg>
           </button>
+
         </div>
       </td>
     </tr >
