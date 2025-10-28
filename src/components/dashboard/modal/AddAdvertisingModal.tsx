@@ -2,9 +2,10 @@
 
 import toast from "react-hot-toast"
 import { AdvertisingCarousel } from "../Carousel/AdvertisingCarousel"
-import { NumberInput } from "../input/NumberInput"
 import { ImageInput } from "../input/ImageInput"
 import { useState } from "react"
+import { createAdvertising } from "@/app/crm/dashboard/app/actions"
+import { Error } from "@/infrastructure"
 
 interface Props {
   open: boolean
@@ -15,16 +16,35 @@ interface Props {
 export const AddAdvertisingModal = ({ open, setOpen, type }: Props) => {
   const [image, setImage] = useState<File | null>(null)
   const [preview, setPreview] = useState<string | null>(null)
-
+  const [text, setText] = useState<string>('')
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-
+    let advData
+    if (type === 'TEXT') {
+      if (!text) return
+      advData = {
+        type,
+        order: 1,
+        text
+      }
+    }
+    else if (type === 'IMAGE') {
+      if (!text) return
+      if (!image) return
+      advData = {
+        type,
+        order: 1,
+        text,
+        image1: image
+      }
+    }
     try {
-      toast.success('The password administrator has been edit successfully')
+      const response: boolean | Error = await createAdvertising(advData!)
+      if (!(typeof response === 'boolean' )) return toast.error(response.message)
+      toast.success('The advertising has been create successfully')
     } catch (error) {
       return toast.error(`${error}`)
     }
-
     setOpen(false)
   }
 
@@ -57,7 +77,15 @@ export const AddAdvertisingModal = ({ open, setOpen, type }: Props) => {
 
                   <div className="col-span-2 mb-5">
                     <label htmlFor="text" className="block mb-2 text-sm font-medium text-gray-900">Text</label>
-                    <input type="text" name="text" id="text" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 " placeholder="Enter text" required
+                    <input 
+                      type="text"
+                      name="text"
+                      id="text"
+                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 "
+                      placeholder="Enter text"
+                      value={text}
+                      onChange={(e) => setText(e.target.value)}
+                      required
                     />
                   </div>
 
