@@ -12,7 +12,7 @@ type CarouselProps = {
 export default function Carousel({
   children,
   className = '',
-  heightClass = 'h-56 md:h-96',
+  heightClass = 'aspect-[3/2]',
   loop = true,
 }: CarouselProps) {
   const [index, setIndex] = useState(0);
@@ -48,7 +48,7 @@ export default function Carousel({
       >
         {/* Track */}
         <div
-          className="flex w-full h-full transition-transform duration-500 ease-in-out"
+          className="flex w-full h-200 transition-transform duration-500 ease-in-out"
           style={{ transform: `translateX(-${index * 100}%)` }}
         >
           {children.map((child, i) => (
