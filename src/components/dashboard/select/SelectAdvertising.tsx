@@ -4,12 +4,13 @@ import { useState } from "react"
 import { AddAdvertisingModal } from "../modal/AddAdvertisingModal"
 
 interface Props {
-  label?: string
+  label?: string,
+  availableOrder: number[]
 }
 
 type TypeAd = 'TEXT' | 'IMAGE' | 'IMAGE_CAROUSEL' | 'VIDEO'
 
-export const SelectAdvertising = ({ label }: Props) => {
+export const SelectAdvertising = ({ label, availableOrder }: Props) => {
   const [open, setOpen] = useState(false)
   const [typeAd, setTypeAd] = useState<TypeAd>('TEXT')
 
@@ -24,12 +25,12 @@ export const SelectAdvertising = ({ label }: Props) => {
         <div className="flex flex-row gap-5 justify-end items-center">
           {
             label && (
-              <label htmlFor="countries" className="block mb-2 text-sm font-medium text-gray-900">Select an option</label>
+              <label htmlFor="options" className="block mb-2 text-sm font-medium text-gray-900">Select an option</label>
             )
           }
           
           <select 
-            id="countries"
+            id="options"
             className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
             value={typeAd}
             onChange={(e) => setTypeAd(e.target.value as TypeAd)}
@@ -48,7 +49,7 @@ export const SelectAdvertising = ({ label }: Props) => {
           </div>
         </div>
       </form>
-      <AddAdvertisingModal open={open} setOpen={setOpen} type={typeAd} />
+      <AddAdvertisingModal open={open} setOpen={setOpen} type={typeAd} availableOrder={availableOrder} />
     </>
   )
 }

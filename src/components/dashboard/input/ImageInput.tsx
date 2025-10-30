@@ -10,28 +10,34 @@ interface Props {
   inputId: string
 }
 
+const MAX_MB = 2
+const MAX_BYTES = MAX_MB * 1024 * 1024
+
 export const ImageInput = ({ file, setFile, preview, setPreview, inputId }: Props) => {
+  const [error, setError] = useState('')
 
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const f = e.target.files?.[0] ?? null;
-    setFile(f);
+    const f = e.target.files?.[0] ?? null
+    if (f?.size! > MAX_BYTES) return setError('The image exceeds the maximum allowed size of 2 MB.')
+    setError('')
+    setFile(f)
   };
 
   useEffect(() => {
     if (!file) {
-      setPreview(null);
-      return;
+      setPreview(null)
+      return
     }
-    const url = URL.createObjectURL(file);
-    setPreview(url);
-    return () => URL.revokeObjectURL(url); // cleanup
-  }, [file]);
+    const url = URL.createObjectURL(file)
+    setPreview(url)
+    return () => URL.revokeObjectURL(url)
+  }, [file])
 
   return (
-    <div className="flex items-center justify-center w-full h-full">
+    <div className="flex justify-center aspect-[3/2]">
       <label
         htmlFor={inputId}
-        className="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 overflow-hidden"
+        className="flex flex-col items-center justify-center w-full border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 overflow-hidden"
       >
         {preview ? (
           <img
@@ -59,7 +65,10 @@ export const ImageInput = ({ file, setFile, preview, setPreview, inputId }: Prop
             <p className="mb-2 text-sm text-gray-600">
               <span className="font-semibold">Click to upload</span> or drag and drop
             </p>
-            <p className="text-xs text-gray-500">SVG, PNG, JPG o GIF (MAX. 800x400px)</p>
+            <p className="text-xs text-gray-500">SVG, PNG, JPG o GIF (ASPECT 3:2)</p>
+            {
+              error && (<p className="text-xs text-red-700 mt-2">{error}</p>)
+            }
           </div>
         )}
 
@@ -71,6 +80,7 @@ export const ImageInput = ({ file, setFile, preview, setPreview, inputId }: Prop
           onChange={onChange}
         />
       </label>
+
     </div>
   );
 };

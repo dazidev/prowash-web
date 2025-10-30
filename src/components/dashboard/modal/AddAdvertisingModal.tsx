@@ -5,48 +5,82 @@ import { AdvertisingCarousel } from "../Carousel/AdvertisingCarousel"
 import { ImageInput } from "../input/ImageInput"
 import { useState } from "react"
 import { createAdvertising } from "@/app/crm/dashboard/app/actions"
-import { Error } from "@/infrastructure"
+import { ErrorApi } from "@/infrastructure"
+
+type ImageObj = {
+  image1: File | null
+  image2: File | null
+  image3: File | null
+  image4: File | null
+  image5: File | null
+}
 
 interface Props {
   open: boolean
   setOpen: (value: boolean) => void
   type: 'TEXT' | 'IMAGE' | 'IMAGE_CAROUSEL' | 'VIDEO'
+  availableOrder: number[]
 }
 
-export const AddAdvertisingModal = ({ open, setOpen, type }: Props) => {
+export const AddAdvertisingModal = ({ open, setOpen, type, availableOrder }: Props) => {
   const [image, setImage] = useState<File | null>(null)
+  const [imageFile, setImageFile] = useState<ImageObj>({
+    image1: null, image2: null, image3: null, image4: null, image5: null
+  })
   const [preview, setPreview] = useState<string | null>(null)
   const [text, setText] = useState<string>('')
+  const [order, setOrder] = useState<number>(availableOrder[0])
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     let advData
     if (type === 'TEXT') {
       if (!text) return
+      if (order === 0) return
       advData = {
         type,
-        order: 1,
+        order,
         text
       }
     }
     else if (type === 'IMAGE') {
       if (!text) return
       if (!image) return
+      if (order === 0) return
       advData = {
         type,
-        order: 1,
+        order,
         text,
         image1: image
       }
     }
+    else if (type === 'IMAGE_CAROUSEL') {
+      if (!text) return
+      if (!imageFile['image1']) return
+      if (!imageFile['image2']) return
+      if (order === 0) return
+      advData = {
+        type,
+        order,
+        text,
+        image1: imageFile['image1'],
+        image2: imageFile['image2'],
+        image3: imageFile['image3'],
+        image4: imageFile['image4'],
+        image5: imageFile['image5'],
+      }
+    }
     try {
-      const response: boolean | Error = await createAdvertising(advData!)
-      if (!(typeof response === 'boolean' )) return toast.error(response.message)
+      const response: boolean | ErrorApi = await createAdvertising(advData!)
+      if (!(typeof response === 'boolean')) return toast.error(response.message)
       toast.success('The advertising has been create successfully')
     } catch (error) {
       return toast.error(`${error}`)
     }
     setOpen(false)
   }
+
+  
 
   return (
     <>
@@ -76,8 +110,23 @@ export const AddAdvertisingModal = ({ open, setOpen, type }: Props) => {
                 <form className="p-4 md:p-5" onSubmit={handleSubmit}>
 
                   <div className="col-span-2 mb-5">
+                    <label htmlFor="order" className="block mb-2 text-sm font-medium text-gray-900">Order</label>
+                    <select
+                      id="order"
+                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                      value={order}
+                      onChange={(e) => setOrder(Number(e.target.value))}
+                    >
+                      {
+                        availableOrder.map((ao) => (<option key={ao} value={ao}>{ao}</option>))
+                      }
+                    </select>
+
+                  </div>
+
+                  <div className="col-span-2 mb-5">
                     <label htmlFor="text" className="block mb-2 text-sm font-medium text-gray-900">Text</label>
-                    <input 
+                    <input
                       type="text"
                       name="text"
                       id="text"
@@ -89,7 +138,6 @@ export const AddAdvertisingModal = ({ open, setOpen, type }: Props) => {
                     />
                   </div>
 
-                                    
                   {
                     type === 'IMAGE' && (
                       <>
@@ -104,20 +152,23 @@ export const AddAdvertisingModal = ({ open, setOpen, type }: Props) => {
                       </>
                     )
                   }
+
                   {
                     type === 'IMAGE_CAROUSEL' && (
                       <>
                         <label htmlFor="text" className="block mb-2 text-sm font-medium text-gray-900">Images</label>
-                        <AdvertisingCarousel/>
+                        <AdvertisingCarousel imageFile={imageFile} setImageFile={setImageFile} />
                       </>
                     )
-                  }                
+                  }
+
                   <div className="flex justify-end mt-10">
                     <button type="submit" className="text-white inline-flex items-end bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
                       <svg className="me-1 -ms-1 w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fillRule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clipRule="evenodd"></path></svg>
                       Add Advertising
                     </button>
                   </div>
+
                 </form>
               </div>
             </div>

@@ -25,7 +25,7 @@ export interface UploadUrl {
   key: string
 }
 
-export interface Error {
+export interface ErrorApi {
   code: string,
   message: string
 }
@@ -33,7 +33,7 @@ export interface Error {
 export interface ApiResponse<T> {
   success: boolean;
   data: T;
-  error?: Error
+  error?: ErrorApi
 }
 
 export interface ApiBooleanResponse {
@@ -41,4 +41,5 @@ export interface ApiBooleanResponse {
 }
 
 export type AdResponse = ApiResponse<AdItem>
+export type AdResponseArray = ApiResponse<AdItem[]>
 export type UrlUpImageResponse = ApiResponse<UploadUrl>

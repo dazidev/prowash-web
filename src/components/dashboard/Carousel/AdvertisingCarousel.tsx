@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from "react"
+import { Dispatch, SetStateAction, useEffect, useState } from "react"
 import { ImageInput } from "../input/ImageInput"
 import { NumberInput } from "../input/NumberInput"
 import Carousel from "./Carousel"
@@ -21,11 +21,14 @@ type PreviewObj = {
   image5: string | null
 }
 
-export const AdvertisingCarousel = () => {
+interface Props {
+  imageFile: ImageObj
+  setImageFile: Dispatch<SetStateAction<ImageObj>>
+
+}
+
+export const AdvertisingCarousel = ({ imageFile, setImageFile }: Props) => {
   const [imageAmount, setImageAmount] = useState(3)
-  const [imageFile, setImageFile] = useState<ImageObj>({
-    image1: null, image2: null, image3: null, image4: null, image5: null
-  })
   const [preview, setPreview] = useState<PreviewObj>({
     image1: null, image2: null, image3: null, image4: null, image5: null,
   })
@@ -39,24 +42,23 @@ export const AdvertisingCarousel = () => {
 
   return (
     <div>
-      <Carousel heightClass="h-56 md:h-96" loop>
+      <Carousel loop>
         {
           amount.map((num) => {
             const field = `image${num}` as keyof ImageObj
             return (
-              <div key={num} className="flex h-full items-center justify-center bg-gray-100">
-                <ImageInput
-                  inputId={`dropzone-file-${num}`}
-                  file={imageFile[field]}
-                  setFile={(f: File | null) =>
-                    setImageFile(prev => ({ ...prev, [field]: f }))
-                  }
-                  preview={preview[field]}
-                  setPreview={(f: string | null) =>
-                    setPreview(prev => ({ ...prev, [field]: f }))
-                  }
-                />
-              </div>
+              <ImageInput
+                key={num}
+                inputId={`dropzone-file-${num}`}
+                file={imageFile[field]}
+                setFile={(f: File | null) =>
+                  setImageFile(prev => ({ ...prev, [field]: f }))
+                }
+                preview={preview[field]}
+                setPreview={(f: string | null) =>
+                  setPreview(prev => ({ ...prev, [field]: f }))
+                }
+              />
             )
           })
         }

@@ -2,8 +2,21 @@ import React from 'react'
 import { AdvItemTextPhone } from './phone/AdvItemTextPhone'
 import { AdvItemImagePhone } from './phone/AdvItemImagePhone'
 import { AdvItemCarouselPhone } from './phone/AdvItemCarouselPhone'
+import { AdItem } from '@/infrastructure'
 
-export const MockupPhone = () => {
+type ImageObj = {
+  image1: string | null
+  image2: string | null
+  image3: string | null
+  image4: string | null
+  image5: string | null
+}
+
+interface Props {
+  data: AdItem[] | null
+}
+
+export const MockupPhone = ({ data }: Props) => {
   return (
     <div className="flex items-center justify-center">
       {/*<!-- iPhone 15 Container -->*/}
@@ -16,11 +29,33 @@ export const MockupPhone = () => {
 
 
         {/*<!-- Screen Content -->*/}
-        <div className="relative w-full h-full  rounded-[37px] overflow-y-auto scrollbar-hide flex flex-col p-4 pt-15 items-center bg-zinc-900/10">
+        <div className="relative w-full h-full  rounded-[37px] overflow-y-auto scrollbar-hide flex flex-col p-1.5 pt-15 items-center bg-zinc-900/10">
           
-          <AdvItemTextPhone text='Anuncio de prowash'/>
+          {
+            data !== null && data.map((d) => {
+              if (d.type === 'TEXT') {
+                return (<AdvItemTextPhone key={d.id} text={d.text!}/>)
+              }
+              else if (d.type === 'IMAGE') {
+                return (<AdvItemImagePhone key={d.id} text={d.text!} image={d.image1!}/>)
+              }
+              else if (d.type === 'IMAGE_CAROUSEL') {
+                const images: ImageObj = {
+                  image1: d.image1,
+                  image2: d.image2,
+                  image3: d.image3,
+                  image4: d.image4,
+                  image5: d.image5,
+                }
+                return (<AdvItemCarouselPhone key={d.id} text={d.text!} images={images}/>)
+              }
+            })
+          }
+
+
+          {/*<AdvItemTextPhone text='Anuncio de prowash'/>
           <AdvItemImagePhone text='Anuncio de prowash'/>
-          <AdvItemCarouselPhone text='Anuncio de prowash'/>
+          <AdvItemCarouselPhone text='Anuncio de prowash'/>*/}
 
 
           {/*<svg className="text-zinc-700 h-40" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
