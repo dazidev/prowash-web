@@ -7,6 +7,8 @@ import { AdvItemImage } from "./advertising/AdvItemImage"
 import { AdvItemText } from "./advertising/AdvItemText"
 import { deleteAdvertising } from "@/app/crm/dashboard/app/actions"
 import toast from "react-hot-toast"
+import VimeoPlayer from "../video/VimeoPlayer"
+import { AdvItemVideo } from "./advertising/AdvItemVideo"
 
 type ImageObj = {
   image1: string | null
@@ -56,7 +58,7 @@ export const TableAdvertising = ({ data }: Props) => {
         {
           data !== null && (
             data.map((ad) => {
-              if (ad.type === 'TEXT') {
+              if (ad.type === 'TEXT') { //! todo: cambiar por switch
                 return (
                   <AdvItemText
                     key={ad.id}
@@ -98,9 +100,24 @@ export const TableAdvertising = ({ data }: Props) => {
                   />
                 )
               }
+              else if (ad.type === 'VIDEO') {
+                console.log(ad.video)
+                return (
+                  <AdvItemVideo
+                    key={ad.id}
+                    id={ad.id}
+                    order={ad.order}
+                    text={ad.text}
+                    videoId={ad.video!}
+                    handleRemove={handleRemove}
+                  />
+                )
+              }
             })
           )
         }
+
+        
 
         {/*<AdvItemText order={1} text="Hola a todos a prowash"/>
         <AdvItemImage order={2} text="Hola a todos esto es una imagen"/>

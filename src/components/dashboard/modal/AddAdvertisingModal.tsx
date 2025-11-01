@@ -6,6 +6,7 @@ import { ImageInput } from "../input/ImageInput"
 import { useState } from "react"
 import { createAdvertising } from "@/app/crm/dashboard/app/actions"
 import { ErrorApi } from "@/infrastructure"
+import VimeoPlayer from "../video/VimeoPlayer"
 
 type ImageObj = {
   image1: File | null
@@ -24,6 +25,7 @@ interface Props {
 
 export const AddAdvertisingModal = ({ open, setOpen, type, availableOrder }: Props) => {
   const [image, setImage] = useState<File | null>(null)
+  const [video, setVideo] = useState<string>('')
   const [imageFile, setImageFile] = useState<ImageObj>({
     image1: null, image2: null, image3: null, image4: null, image5: null
   })
@@ -70,6 +72,17 @@ export const AddAdvertisingModal = ({ open, setOpen, type, availableOrder }: Pro
         image5: imageFile['image5'],
       }
     }
+    else if (type === 'VIDEO') {
+      if (!text) return
+      if (!video) return
+      if (order === 0) return
+      advData = {
+        type,
+        order,
+        text,
+        video: video
+      }
+    }
     try {
       const response: boolean | ErrorApi = await createAdvertising(advData!)
       if (!(typeof response === 'boolean')) return toast.error(response.message)
@@ -79,8 +92,6 @@ export const AddAdvertisingModal = ({ open, setOpen, type, availableOrder }: Pro
     }
     setOpen(false)
   }
-
-  
 
   return (
     <>
@@ -158,6 +169,33 @@ export const AddAdvertisingModal = ({ open, setOpen, type, availableOrder }: Pro
                       <>
                         <label htmlFor="text" className="block mb-2 text-sm font-medium text-gray-900">Images</label>
                         <AdvertisingCarousel imageFile={imageFile} setImageFile={setImageFile} />
+                      </>
+                    )
+                  }
+
+                  {
+                    type === 'VIDEO' && (
+                      <>
+                        <label htmlFor="text" className="block mb-2 text-sm font-medium text-gray-900">ID</label>
+                        <input
+                          type="text"
+                          name="text"
+                          id="text"
+                          className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 "
+                          placeholder="Enter text"
+                          value={video}
+                          onChange={(e) => setVideo(e.target.value)}
+                          required
+                        />
+                        {
+                          
+                          video && (
+                            <div className="mt-5">
+                              <label htmlFor="text" className="block mb-2 text-sm font-medium text-gray-900">Video</label>
+                              <VimeoPlayer videoId={video}/>
+                            </div>
+                          )
+                        }
                       </>
                     )
                   }

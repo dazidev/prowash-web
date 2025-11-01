@@ -3,6 +3,7 @@ import { AdvItemTextPhone } from './phone/AdvItemTextPhone'
 import { AdvItemImagePhone } from './phone/AdvItemImagePhone'
 import { AdvItemCarouselPhone } from './phone/AdvItemCarouselPhone'
 import { AdItem } from '@/infrastructure'
+import { AdvItemVideoPhone } from './phone/AdvItemVideoPhone'
 
 type ImageObj = {
   image1: string | null
@@ -27,7 +28,6 @@ export const MockupPhone = ({ data }: Props) => {
 
         <div className="absolute -inset-[1px] border-[3px] border-zinc-700 border-opacity-40 rounded-[37px] pointer-events-none"></div>
 
-
         {/*<!-- Screen Content -->*/}
         <div className="relative w-full h-full  rounded-[37px] overflow-y-auto scrollbar-hide flex flex-col p-1.5 pt-15 items-center bg-zinc-900/10">
           
@@ -48,6 +48,9 @@ export const MockupPhone = ({ data }: Props) => {
                   image5: d.image5,
                 }
                 return (<AdvItemCarouselPhone key={d.id} text={d.text!} images={images}/>)
+              }
+              else if (d.type === 'VIDEO') {
+                return (<AdvItemVideoPhone key={d.id} text={d.text!} video={d.video!} />)
               }
             })
           }
