@@ -1,43 +1,25 @@
-import React from 'react'
-import { TopNavItem } from './TopNavItem'
+import React from "react";
+import { TopNavItem } from "./TopNavItem";
 
 export const TopNav = () => {
   return (
-    <nav className="fixed top-0 z-50 w-[90%] h-20 m-4 rounded-xl">
+    <nav className="fixed top-0 z-50 w-[95%] h-20 m-4 rounded-xl">
       <div className="flex flex-row px-3 py-3 lg:px-5 lg:pl-3">
-
         <div className="flex items-center justify-end pl-5">
-          <span
-            className='text-4xl font-extrabold text-[#0841D9]'
-          >
-            PROWASH
+          <span className="text-4xl font-extrabold text-[#0841D9]">
+            ProWash
           </span>
-          <span
-            className='text-4xl font-extrabold text-[#97c000] ml-2'
-          >
+          <span className="text-4xl font-extrabold text-[#97c000] ml-2">
             365
           </span>
-
         </div>
 
-        <div className='flex-1'>
-          <ul className='flex flex-row justify-center'>
-            <TopNavItem
-              path="/crm/dashboard"
-              labelText="HOME"
-            />
-            <TopNavItem
-              path="/crm/dashboard/admins"
-              labelText="ADMINS"
-            />
-            <TopNavItem
-              path="/crm/dashboard/clients"
-              labelText="CLIENTS"
-            />
-            <TopNavItem
-              path="/crm/dashboard/app"
-              labelText="APP"
-            />
+        <div className="flex-1">
+          <ul className="flex flex-row justify-center">
+            <TopNavItem path="/crm/dashboard/home" labelText="Home" />
+            <TopNavItem path="/crm/dashboard/admins" labelText="Admins" />
+            <TopNavItem path="/crm/dashboard/clients" labelText="Clients" />
+            <TopNavItem path="/crm/dashboard/app" labelText="App" />
           </ul>
         </div>
 
@@ -46,12 +28,13 @@ export const TopNav = () => {
             DZ
           </div>
           <div className="flex flex-col">
-            <div className="text-lg font-semibold text-slate-900">Hi, Daniel Zipa</div>
+            <div className="text-lg font-semibold text-slate-900">
+              Hi, Daniel Zipa
+            </div>
             <div className="text-sm text-slate-500">danielzipa@outlook.com</div>
           </div>
         </div>
-
       </div>
     </nav>
-  )
-}
+  );
+};
