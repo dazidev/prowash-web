@@ -1,10 +1,10 @@
-'use client'
+"use client";
 
-import Image from "next/image"
+import Image from "next/image";
 
 interface Props {
-  text: string,
-  image: string
+  text: string;
+  image: string;
 }
 
 export const AdvItemImagePhone = ({ text, image }: Props) => {
@@ -27,5 +27,5 @@ export const AdvItemImagePhone = ({ text, image }: Props) => {
         />
       </div>
     </li>
-  )
-}
+  );
+};

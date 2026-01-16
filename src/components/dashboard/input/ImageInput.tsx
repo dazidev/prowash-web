@@ -1,37 +1,44 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 
 interface Props {
-  file: File | null
-  setFile: (f: File | null) => void
-  preview: string | null
-  setPreview: (f: string | null) => void
-  inputId: string
+  file: File | null;
+  setFile: (f: File | null) => void;
+  preview: string | null;
+  setPreview: (f: string | null) => void;
+  inputId: string;
 }
 
-const MAX_MB = 2
-const MAX_BYTES = MAX_MB * 1024 * 1024
+const MAX_MB = 2;
+const MAX_BYTES = MAX_MB * 1024 * 1024;
 
-export const ImageInput = ({ file, setFile, preview, setPreview, inputId }: Props) => {
-  const [error, setError] = useState('')
+export const ImageInput = ({
+  file,
+  setFile,
+  preview,
+  setPreview,
+  inputId,
+}: Props) => {
+  const [error, setError] = useState("");
 
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const f = e.target.files?.[0] ?? null
-    if (f?.size! > MAX_BYTES) return setError('The image exceeds the maximum allowed size of 2 MB.')
-    setError('')
-    setFile(f)
+    const f = e.target.files?.[0] ?? null;
+    if (f?.size! > MAX_BYTES)
+      return setError("The image exceeds the maximum allowed size of 2 MB.");
+    setError("");
+    setFile(f);
   };
 
   useEffect(() => {
     if (!file) {
-      setPreview(null)
-      return
+      setPreview(null);
+      return;
     }
-    const url = URL.createObjectURL(file)
-    setPreview(url)
-    return () => URL.revokeObjectURL(url)
-  }, [file])
+    const url = URL.createObjectURL(file);
+    setPreview(url);
+    return () => URL.revokeObjectURL(url);
+  }, [file]);
 
   return (
     <div className="flex justify-center aspect-[3/2]">
@@ -63,12 +70,13 @@ export const ImageInput = ({ file, setFile, preview, setPreview, inputId }: Prop
               />
             </svg>
             <p className="mb-2 text-sm text-gray-600">
-              <span className="font-semibold">Click to upload</span> or drag and drop
+              <span className="font-semibold">Click to upload</span> or drag and
+              drop
             </p>
-            <p className="text-xs text-gray-500">SVG, PNG, JPG o GIF (ASPECT 3:2)</p>
-            {
-              error && (<p className="text-xs text-red-700 mt-2">{error}</p>)
-            }
+            <p className="text-xs text-gray-500">
+              SVG, PNG, JPG o GIF (ASPECT 3:2)
+            </p>
+            {error && <p className="text-xs text-red-700 mt-2">{error}</p>}
           </div>
         )}
 
@@ -80,8 +88,6 @@ export const ImageInput = ({ file, setFile, preview, setPreview, inputId }: Prop
           onChange={onChange}
         />
       </label>
-
     </div>
   );
 };
-

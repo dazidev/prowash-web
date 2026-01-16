@@ -1,11 +1,11 @@
-'use client'
+"use client";
 
-import Image from "next/image"
-import VimeoPlayer from "../../video/VimeoPlayer"
+import Image from "next/image";
+import VimeoPlayer from "../../video/VimeoPlayer";
 
 interface Props {
-  text: string,
-  video: string
+  text: string;
+  video: string;
 }
 
 export const AdvItemVideoPhone = ({ text, video }: Props) => {
@@ -19,8 +19,8 @@ export const AdvItemVideoPhone = ({ text, video }: Props) => {
       <div className="ml-2 w-full">
         <p className="text-xl text-black">Prowash 365</p>
         <p className="text-xl font-extralight">{text}</p>
-        <VimeoPlayer videoId={video}/>
+        <VimeoPlayer videoId={video} />
       </div>
     </li>
-  )
-}
+  );
+};

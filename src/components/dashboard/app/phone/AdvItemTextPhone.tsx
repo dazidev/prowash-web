@@ -1,7 +1,7 @@
-'use client'
+"use client";
 
 interface Props {
-  text: string
+  text: string;
 }
 
 export const AdvItemTextPhone = ({ text }: Props) => {
@@ -17,5 +17,5 @@ export const AdvItemTextPhone = ({ text }: Props) => {
         <p className="text-xl font-extralight">{text}</p>
       </div>
     </li>
-  )
-}
+  );
+};

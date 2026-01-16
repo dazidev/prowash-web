@@ -1,18 +1,18 @@
-'use client';
+"use client";
 
-import { useState, useRef } from 'react';
+import { useState, useRef } from "react";
 
 type CarouselProps = {
-  children: React.ReactNode[];     // cada hijo es un slide
+  children: React.ReactNode[]; // cada hijo es un slide
   className?: string;
-  heightClass?: string;            // ej: "h-56 md:h-96"
+  heightClass?: string; // ej: "h-56 md:h-96"
   loop?: boolean;
 };
 
 export default function Carousel({
   children,
-  className = '',
-  heightClass = 'aspect-[3/2]',
+  className = "",
+  heightClass = "aspect-[3/2]",
   loop = true,
 }: CarouselProps) {
   const [index, setIndex] = useState(0);
@@ -20,7 +20,8 @@ export default function Carousel({
 
   // Swipe (opcional)
   const startX = useRef<number | null>(null);
-  const onTouchStart = (e: React.TouchEvent) => (startX.current = e.touches[0].clientX);
+  const onTouchStart = (e: React.TouchEvent) =>
+    (startX.current = e.touches[0].clientX);
   const onTouchEnd = (e: React.TouchEvent) => {
     if (startX.current == null) return;
     const delta = e.changedTouches[0].clientX - startX.current;
@@ -67,7 +68,11 @@ export default function Carousel({
             aria-label={`Ir al slide ${i + 1}`}
             onClick={() => setIndex(i)}
             className={`w-3 h-3 rounded-full border
-              ${i === index ? 'bg-black/90 border-black' : 'bg-black/40 border-black/70'}
+              ${
+                i === index
+                  ? "bg-black/90 border-black"
+                  : "bg-black/40 border-black/70"
+              }
             `}
           />
         ))}
@@ -83,7 +88,13 @@ export default function Carousel({
         <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-black/30 hover:bg-black/40">
           {/* ‹ */}
           <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-            <path d="M12 4L6 10L12 16" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            <path
+              d="M12 4L6 10L12 16"
+              stroke="white"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
           </svg>
         </span>
       </button>
@@ -96,7 +107,13 @@ export default function Carousel({
         <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-black/30 hover:bg-black/40">
           {/* › */}
           <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-            <path d="M8 4L14 10L8 16" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            <path
+              d="M8 4L14 10L8 16"
+              stroke="white"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
           </svg>
         </span>
       </button>

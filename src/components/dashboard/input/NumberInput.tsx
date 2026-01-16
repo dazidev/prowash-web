@@ -1,20 +1,26 @@
-'use client';
+"use client";
 
 interface Props {
-  value: number,
-  setValue: React.Dispatch<React.SetStateAction<number>>
+  value: number;
+  setValue: React.Dispatch<React.SetStateAction<number>>;
 }
 
 export const NumberInput = ({ value, setValue }: Props) => {
   const min = 2;
   const max = 5;
 
-  const dec = () => setValue(v => Math.max(min, v - 1));
-  const inc = () => setValue(v => Math.min(max, v + 1));
+  const dec = () => setValue((v) => Math.max(min, v - 1));
+  const inc = () => setValue((v) => Math.min(max, v + 1));
 
   return (
-    <form className="w-full flex flex-row gap-5 justify-end items-center mt-3" onSubmit={(e) => e.preventDefault()}>
-      <label htmlFor="qty" className="block mb-2 text-sm font-medium text-gray-900">
+    <form
+      className="w-full flex flex-row gap-5 justify-end items-center mt-3"
+      onSubmit={(e) => e.preventDefault()}
+    >
+      <label
+        htmlFor="qty"
+        className="block mb-2 text-sm font-medium text-gray-900"
+      >
         Image quantity:
       </label>
 
@@ -26,8 +32,20 @@ export const NumberInput = ({ value, setValue }: Props) => {
           className="bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed border border-gray-300 rounded-s-lg p-3 h-11 focus:ring-2 focus:ring-gray-200 focus:outline-none"
           aria-label="Decrement"
         >
-          <svg className="w-3 h-3 text-gray-900" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 2">
-            <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M1 1h16" />
+          <svg
+            className="w-3 h-3 text-gray-900"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 18 2"
+          >
+            <path
+              stroke="currentColor"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M1 1h16"
+            />
           </svg>
         </button>
 
@@ -48,8 +66,20 @@ export const NumberInput = ({ value, setValue }: Props) => {
           className="bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed border border-gray-300 rounded-e-lg p-3 h-11 focus:ring-2 focus:ring-gray-200 focus:outline-none"
           aria-label="Increment"
         >
-          <svg className="w-3 h-3 text-gray-900" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 18">
-            <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 1v16M1 9h16" />
+          <svg
+            className="w-3 h-3 text-gray-900"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 18 18"
+          >
+            <path
+              stroke="currentColor"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M9 1v16M1 9h16"
+            />
           </svg>
         </button>
       </div>

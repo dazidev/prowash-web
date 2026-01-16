@@ -3,8 +3,8 @@
 import React from "react";
 
 type Props = {
-  videoId: string;           // p.ej. "123456789"
-  title?: string;            // accesibilidad
+  videoId: string; // p.ej. "123456789"
+  title?: string; // accesibilidad
   autoplay?: boolean;
   loop?: boolean;
   muted?: boolean;
@@ -32,8 +32,8 @@ export default function VimeoPlayer({
     portrait: portrait ? "1" : "0",
     // Opcionales recomendados:
     playsinline: "1",
-    dnt: "1",          // Do Not Track
-    app_id: "nextjs",  // marca tu app en analytics
+    dnt: "1", // Do Not Track
+    app_id: "nextjs", // marca tu app en analytics
     responsive: "1",
   }).toString();
 
@@ -57,7 +57,11 @@ export default function VimeoPlayer({
       />
       {/* Noscript de cortesía */}
       <noscript>
-        <a href={`https://vimeo.com/${videoId}`} target="_blank" rel="noreferrer">
+        <a
+          href={`https://vimeo.com/${videoId}`}
+          target="_blank"
+          rel="noreferrer"
+        >
           Ver en Vimeo
         </a>
       </noscript>

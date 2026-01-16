@@ -1,3 +1,1 @@
-
-
-export * from './api.responses.interface'
+export * from "./api.responses.interface";

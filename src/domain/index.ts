@@ -1,1 +1,1 @@
-export { regex } from './validation/regex'
+export { regex } from "./validation/regex";

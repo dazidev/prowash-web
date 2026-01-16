@@ -1,131 +1,144 @@
-'use client'
+"use client";
 
 import { User } from "@/interfaces";
-import { TableItem } from "./TableItem"
+import { TableItem } from "./TableItem";
 import { BiSearch } from "react-icons/bi";
 import { useEffect, useState } from "react";
 import { FormModal } from "../modal/FormModal";
-import { ConfirmModal } from '../modal/ConfirmModal';
-import { createAdmin, deleteAdmin, editAdmin } from "@/app/crm/dashboard/admins/actions";
+import { ConfirmModal } from "../modal/ConfirmModal";
+import {
+  createAdmin,
+  deleteAdmin,
+  editAdmin,
+} from "@/app/crm/dashboard/admins/actions";
 import toast from "react-hot-toast";
 import { ChangePasswordModal } from "../modal/ChangePasswordModal";
 
-
 interface Props {
-  name: string
-  headers: string[]
-  data?: User[]
+  name: string;
+  headers: string[];
+  data?: User[];
 }
 
-
 export const Table = ({ name, headers, data }: Props) => {
-  const [search, setSearch] = useState('')
-  const [dataList, setDataList] = useState<User[]>()
+  const [search, setSearch] = useState("");
+  const [dataList, setDataList] = useState<User[]>();
   const [openModal, setOpenModal] = useState({
     create: false,
     confirm: false,
     edit: false,
-    changePassword: false
-  })
-  const [targetId, setTargetId] = useState('')
+    changePassword: false,
+  });
+  const [targetId, setTargetId] = useState("");
 
   useEffect(() => {
     if (data) {
-      setDataList(data)
+      setDataList(data);
     }
-  }, [data])
-
+  }, [data]);
 
   const findData = (value: string) => {
-    if (!data) return
+    if (!data) return;
 
-    const q = value.toLowerCase()
+    const q = value.toLowerCase();
 
-    const dataFounds = data.filter(row => {
-      const fullname = `${row.name.toLowerCase()} ${row.lastname.toLowerCase()}`
-      const email = row.email.toLowerCase()
+    const dataFounds = data.filter((row) => {
+      const fullname = `${row.name.toLowerCase()} ${row.lastname.toLowerCase()}`;
+      const email = row.email.toLowerCase();
 
-      return fullname.includes(q) || email.includes(q)
-    })
+      return fullname.includes(q) || email.includes(q);
+    });
     if (dataFounds) {
-      setDataList(dataFounds)
+      setDataList(dataFounds);
     }
-  }
+  };
 
   const handleSearch = (value: string) => {
-    setSearch(value)
-    findData(value)
-  }
+    setSearch(value);
+    findData(value);
+  };
 
   const handleOpenModalCreate = (value: boolean) => {
-    setOpenModal((prev) => ({...prev, create: value}))
-  }
+    setOpenModal((prev) => ({ ...prev, create: value }));
+  };
 
   const handleOpenModalConfirm = (value: boolean) => {
-    setOpenModal((prev) => ({...prev, confirm: value}))
-  }
+    setOpenModal((prev) => ({ ...prev, confirm: value }));
+  };
 
   const handleOpenModalEdit = (value: boolean) => {
-    setOpenModal((prev) => ({...prev, edit: value}))
-  }
+    setOpenModal((prev) => ({ ...prev, edit: value }));
+  };
 
   const handleOpenModalChangePassword = (value: boolean) => {
-    setOpenModal((prev) => ({...prev, changePassword: value}))
-  }
+    setOpenModal((prev) => ({ ...prev, changePassword: value }));
+  };
 
   const handleRemove = async () => {
     try {
-      const remove = await deleteAdmin(targetId)
+      const remove = await deleteAdmin(targetId);
 
-      if (!remove.success) return toast.error(`${remove.error.code}`)
+      if (!remove.success) return toast.error(`${remove.error.code}`);
 
-      return toast.success('The administrator has been delete successfully')
-
+      return toast.success("The administrator has been delete successfully");
     } catch (error) {
-      toast.error(`${error}`)
+      toast.error(`${error}`);
     } finally {
-      setTargetId('')
+      setTargetId("");
     }
-  }
+  };
 
   const handleCreate = async (field: any): Promise<boolean> => {
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(field.email)) return false
-    if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/.test(field.password)) return false
-    if (!field.name || !field.lastname || !field.email || !field.password || !field.role) return false
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(field.email)) return false;
+    if (
+      !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/.test(
+        field.password
+      )
+    )
+      return false;
+    if (
+      !field.name ||
+      !field.lastname ||
+      !field.email ||
+      !field.password ||
+      !field.role
+    )
+      return false;
     try {
-      const response = await createAdmin(field)
-      if (!response.success){
-        toast.error(`${response.error.code}`)
-        return false
-      } 
-        
-      toast.success('The administrator has been created successfully')
-      return true
+      const response = await createAdmin(field);
+      if (!response.success) {
+        toast.error(`${response.error.code}`);
+        return false;
+      }
+
+      toast.success("The administrator has been created successfully");
+      return true;
     } catch (error) {
-      toast.error(`${error}`)
-      return false
+      toast.error(`${error}`);
+      return false;
     }
-  }
+  };
 
   const handleEdit = async (field: any): Promise<boolean> => {
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(field.email)) return false
-    if (!field.name || !field.lastname || !field.email || !field.role) return false
-    
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(field.email)) return false;
+    if (!field.name || !field.lastname || !field.email || !field.role)
+      return false;
+
     try {
-      const response = await editAdmin(targetId, field)
-      if (!response.success){
-        toast.error(`${response.error.code}`)
-        return false
-      } 
-        
-      toast.success('The administrator has been edit successfully')
-      return true
+      const response = await editAdmin(targetId, field);
+      if (!response.success) {
+        toast.error(`${response.error.code}`);
+        return false;
+      }
+
+      toast.success("The administrator has been edit successfully");
+      return true;
     } catch (error) {
-      toast.error(`${error}`)
-      return false
+      toast.error(`${error}`);
+      return false;
     }
-  }
-  
+  };
+
   return (
     <>
       <div className="relative overflow-x-auto shadow-sm sm:rounded-lg m-5">
@@ -141,7 +154,10 @@ export const Table = ({ name, headers, data }: Props) => {
         </div>
         <div className="px-8 py-6 bg-white">
           <div className="relative">
-            <BiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+            <BiSearch
+              className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
+              size={16}
+            />
             <input
               type="text"
               placeholder="Search by name or email..."
@@ -154,28 +170,26 @@ export const Table = ({ name, headers, data }: Props) => {
         <table className="w-full text-sm text-left rtl:text-right text-gray-500 pt-5">
           <thead className="text-xs text-gray-700 uppercase bg-gray-50">
             <tr>
-              {
-                headers && headers.map(header => (
+              {headers &&
+                headers.map((header) => (
                   <th key={header} scope="col" className="px-6 py-3">
                     {header}
                   </th>
-                ))
-              }
+                ))}
             </tr>
           </thead>
           <tbody>
-            { 
-              dataList && dataList.map(admin => (
-                <TableItem 
+            {dataList &&
+              dataList.map((admin) => (
+                <TableItem
                   key={admin.id}
                   user={admin}
                   setOpenConfirm={handleOpenModalConfirm}
                   setOpenEdit={handleOpenModalEdit}
                   setOpenChangePass={handleOpenModalChangePassword}
-                  setTargetId={setTargetId} 
+                  setTargetId={setTargetId}
                 />
-              ))
-            }
+              ))}
           </tbody>
         </table>
         {/*<nav className="flex items-center flex-column flex-wrap md:flex-row justify-between pt-4" aria-label="Table navigation">
@@ -206,8 +220,8 @@ export const Table = ({ name, headers, data }: Props) => {
       </nav>*/}
       </div>
       <FormModal
-        open={openModal.create} 
-        setOpen={handleOpenModalCreate} 
+        open={openModal.create}
+        setOpen={handleOpenModalCreate}
         handleAction={handleCreate}
         type="create"
       />
@@ -216,12 +230,20 @@ export const Table = ({ name, headers, data }: Props) => {
         setOpen={handleOpenModalEdit}
         handleAction={handleEdit}
         type="edit"
-        user={
-          data?.find(user => { return user.id === targetId})
-        }
+        user={data?.find((user) => {
+          return user.id === targetId;
+        })}
       />
-      <ConfirmModal open={openModal.confirm} setOpen={handleOpenModalConfirm} handleRemove={handleRemove} />
-      <ChangePasswordModal id={targetId} open={openModal.changePassword} setOpen={handleOpenModalChangePassword}/>
+      <ConfirmModal
+        open={openModal.confirm}
+        setOpen={handleOpenModalConfirm}
+        handleRemove={handleRemove}
+      />
+      <ChangePasswordModal
+        id={targetId}
+        open={openModal.changePassword}
+        setOpen={handleOpenModalChangePassword}
+      />
     </>
-  )
-}
+  );
+};

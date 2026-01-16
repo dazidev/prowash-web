@@ -1,18 +1,15 @@
 import { TopNav } from "@/components/dashboard/topNav/TopNav";
 
 export default function DashboardLayout({
-  children
+  children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
   return (
     <div className="flex flex-col items-center min-h-screen overflow-hidden">
-      <TopNav/>
+      <TopNav />
 
-      <main className="pt-28 w-full min-h-0 bg-white flex-1">
-        { children }
-      </main>
+      <main className="pt-28 w-full min-h-0 bg-white flex-1">{children}</main>
     </div>
-
   );
 }
