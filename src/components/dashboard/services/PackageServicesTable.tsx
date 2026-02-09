@@ -4,7 +4,9 @@ import { DefaultButton } from "@/components/common/button/DefaultButton";
 import { useState } from "react";
 import { BiSearch } from "react-icons/bi";
 import { ManageServicesModal } from "./ManageServicesModal";
-import { AddPackageServiceModal } from "./AddPackageServiceModal";
+import { AddServiceRangeModal } from "./AddServiceRangeModal";
+
+type Elements = "service" | "range";
 
 interface Props {
   name: string;
@@ -13,11 +15,15 @@ interface Props {
 }
 
 export const PackageServicesTable = ({ name, headers, data }: Props) => {
+  const [openModal, setOpenModal] = useState({
+    service: false,
+    range: false,
+  });
   const [addService, setAddService] = useState(false);
   const [service, setService] = useState("");
 
-  const handleModal = (value: boolean) => {
-    setAddService(value);
+  const handleModal = (value: boolean, element: Elements) => {
+    setOpenModal((prev) => ({ ...prev, [element]: value }));
   };
 
   return (
@@ -25,12 +31,17 @@ export const PackageServicesTable = ({ name, headers, data }: Props) => {
       <div className="relative overflow-x-auto shadow-sm sm:rounded-lg w-full border border-gray-200">
         <div className="flex flex-row w-full h-20 px-10 items-center justify-between bg-white border-b-2 border-gray-200">
           <span className="text-xl text-black font-bold">{`${name} List`}</span>
-          <div className="flex flex-row gap-5">
+          <div className="flex flex-row gap-3">
+            <DefaultButton
+              name="Add Range"
+              loading={false}
+              onClick={() => handleModal(true, "range")}
+            />
             <DefaultButton
               name="Add Service"
               loading={false}
               style="bg-pgreen hover:brightness-110"
-              onClick={() => setAddService(true)}
+              onClick={() => handleModal(true, "service")}
             />
           </div>
         </div>
@@ -75,8 +86,16 @@ export const PackageServicesTable = ({ name, headers, data }: Props) => {
           </tbody>
         </table>
       </div>
-      <AddPackageServiceModal
-        open={addService}
+      <AddServiceRangeModal
+        open={openModal.service}
+        name="service"
+        setOpen={handleModal}
+        brand={service}
+        setBrand={setService}
+      />
+      <AddServiceRangeModal
+        open={openModal.range}
+        name="range"
         setOpen={handleModal}
         brand={service}
         setBrand={setService}
