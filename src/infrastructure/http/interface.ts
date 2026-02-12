@@ -17,6 +17,13 @@ export interface AdItem {
   updatedAt: string; // ISO 8601
 }
 
+export interface PServiceItem {
+  id: string;
+  name: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface UploadUrl {
   uploadUrl: string;
   key: string;
@@ -31,6 +38,10 @@ export interface ApiResponse<T> {
   success: boolean;
   data: T;
   error?: ErrorApi;
+}
+
+export interface NextResponse<T> extends ApiResponse<T> {
+  message?: string;
 }
 
 export interface ApiBooleanResponse {

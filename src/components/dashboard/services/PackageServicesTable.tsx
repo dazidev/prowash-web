@@ -1,29 +1,62 @@
 "use client";
 
 import { DefaultButton } from "@/components/common/button/DefaultButton";
-import { useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { BiSearch } from "react-icons/bi";
 import { ManageServicesModal } from "./ManageServicesModal";
 import { AddServiceRangeModal } from "./AddServiceRangeModal";
+import { PackageServicesItem } from "./PackageServicesItem";
+import { ApiResponse, NextResponse, PServiceItem } from "@/infrastructure";
+import { useServices } from "@/context/ServicesProvider";
+import { ConfirmModal } from "../modal/ConfirmModal";
+import { deletePackageService } from "@/actions";
+import toast from "react-hot-toast";
 
-type Elements = "service" | "range";
+type Elements = "service" | "range" | "updateService";
 
 interface Props {
   name: string;
   headers: string[];
-  data?: string[];
 }
 
-export const PackageServicesTable = ({ name, headers, data }: Props) => {
+export const PackageServicesTable = ({ name, headers }: Props) => {
   const [openModal, setOpenModal] = useState({
     service: false,
+    updateService: false,
     range: false,
+    confirm: false,
   });
-  const [addService, setAddService] = useState(false);
-  const [service, setService] = useState("");
+  const [targetId, setTargetId] = useState("");
+  const [dataList, setDataList] = useState<PServiceItem[]>();
+
+  const { packageServicesData: data, revalidateData } = useServices();
+
+  useEffect(() => {
+    if (data) {
+      setDataList(data);
+    }
+  }, [data]);
 
   const handleModal = (value: boolean, element: Elements) => {
     setOpenModal((prev) => ({ ...prev, [element]: value }));
+  };
+
+  const handleOpenModalConfirm = (value: boolean) => {
+    setOpenModal((prev) => ({ ...prev, ["confirm"]: value }));
+  };
+
+  const handleRemove = async () => {
+    const response: NextResponse<undefined> =
+      await deletePackageService(targetId);
+
+    if (!response.success) return toast.error(`${response.error?.message}`);
+    toast.success(`${response.message}`);
+    revalidateData("package-services");
+    return;
+  };
+
+  const handleOpenModalUpdate = (value: boolean) => {
+    setOpenModal((prev) => ({ ...prev, ["updateService"]: value }));
   };
 
   return (
@@ -72,17 +105,16 @@ export const PackageServicesTable = ({ name, headers, data }: Props) => {
             </tr>
           </thead>
           <tbody>
-            {/*dataList &&
-              dataList.map((admin) => (
-                <TableItem
-                  key={admin.id}
-                  user={admin}
+            {dataList &&
+              dataList.map((service) => (
+                <PackageServicesItem
+                  key={service.id}
+                  service={service}
                   setOpenConfirm={handleOpenModalConfirm}
-                  setOpenEdit={handleOpenModalEdit}
-                  setOpenChangePass={handleOpenModalChangePassword}
+                  setOpenUpdate={handleOpenModalUpdate}
                   setTargetId={setTargetId}
                 />
-              ))*/}
+              ))}
           </tbody>
         </table>
       </div>
@@ -90,15 +122,25 @@ export const PackageServicesTable = ({ name, headers, data }: Props) => {
         open={openModal.service}
         name="service"
         setOpen={handleModal}
-        brand={service}
-        setBrand={setService}
+        option="create"
+      />
+      <AddServiceRangeModal
+        open={openModal.updateService}
+        name="updateService"
+        setOpen={handleModal}
+        option="update"
+        targetId={targetId}
       />
       <AddServiceRangeModal
         open={openModal.range}
         name="range"
         setOpen={handleModal}
-        brand={service}
-        setBrand={setService}
+        option="create"
+      />
+      <ConfirmModal
+        open={openModal.confirm}
+        setOpen={handleOpenModalConfirm}
+        handleRemove={handleRemove}
       />
     </>
   );
