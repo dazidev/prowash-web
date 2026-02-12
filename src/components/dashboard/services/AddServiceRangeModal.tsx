@@ -4,11 +4,16 @@ import { CloseButton } from "../../common/button/CloseButton";
 import toast from "react-hot-toast";
 import { TextInput } from "@/components/common/input/TextInput";
 import { DefaultButton } from "@/components/common/button/DefaultButton";
-import { createPackageService, updatePackageService } from "@/actions";
-import { NextResponse, PServiceItem } from "@/infrastructure";
+import {
+  createPackageRange,
+  createPackageService,
+  updatePackageRange,
+  updatePackageService,
+} from "@/actions";
+import { NextResponse, PackageRangeItem, PServiceItem } from "@/infrastructure";
 import { useServices } from "@/context/ServicesProvider";
 
-type Elements = "service" | "range" | "updateService";
+type Elements = "service" | "range" | "updateService" | "updateRange";
 type Options = "create" | "update";
 
 interface Props {
@@ -42,20 +47,37 @@ export const AddServiceRangeModal = ({
     setLoading(true);
     if (option === "update") {
       if (!targetId) return;
-      const response: NextResponse<PServiceItem> = await updatePackageService(
-        targetId,
-        value,
-      );
-      if (!response.success) return toast.error(`${response.error?.message}`);
-      toast.success(`${response.message}`);
+      if (name === "updateService") {
+        const response: NextResponse<PServiceItem> = await updatePackageService(
+          targetId,
+          value,
+        );
+        if (!response.success) return toast.error(`${response.error?.message}`);
+        toast.success(`${response.message}`);
+        revalidateData("package-services");
+      } else if (name === "updateRange") {
+        const response: NextResponse<PackageRangeItem> =
+          await updatePackageRange(targetId, value);
+        if (!response.success) return toast.error(`${response.error?.message}`);
+        toast.success(`${response.message}`);
+        revalidateData("package-ranges");
+      }
     } else if (option === "create") {
-      const response: NextResponse<PServiceItem> =
-        await createPackageService(value);
-      if (!response.success) return toast.error(`${response.error?.message}`);
-      toast.success(`${response.message}`);
+      if (name === "service") {
+        const response: NextResponse<PServiceItem> =
+          await createPackageService(value);
+        if (!response.success) return toast.error(`${response.error?.message}`);
+        toast.success(`${response.message}`);
+        revalidateData("package-services");
+      } else if (name === "range") {
+        const response: NextResponse<PackageRangeItem> =
+          await createPackageRange(value);
+        if (!response.success) return toast.error(`${response.error?.message}`);
+        toast.success(`${response.message}`);
+        revalidateData("package-ranges");
+      }
     }
     setLoading(false);
-    revalidateData("package-services");
     setValue("");
   };
 

@@ -24,6 +24,14 @@ export interface PServiceItem {
   updatedAt: string;
 }
 
+export interface PackageRangeItem {
+  id: string;
+  description: string;
+  unit: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface UploadUrl {
   uploadUrl: string;
   key: string;

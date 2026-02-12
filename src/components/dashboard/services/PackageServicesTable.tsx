@@ -6,13 +6,19 @@ import { BiSearch } from "react-icons/bi";
 import { ManageServicesModal } from "./ManageServicesModal";
 import { AddServiceRangeModal } from "./AddServiceRangeModal";
 import { PackageServicesItem } from "./PackageServicesItem";
-import { ApiResponse, NextResponse, PServiceItem } from "@/infrastructure";
+import {
+  ApiResponse,
+  NextResponse,
+  PackageRangeItem,
+  PServiceItem,
+} from "@/infrastructure";
 import { useServices } from "@/context/ServicesProvider";
 import { ConfirmModal } from "../modal/ConfirmModal";
-import { deletePackageService } from "@/actions";
+import { deletePackageRange, deletePackageService } from "@/actions";
 import toast from "react-hot-toast";
 
-type Elements = "service" | "range" | "updateService";
+type Elements = "service" | "range" | "updateService" | "updateRange";
+type Views = "services" | "ranges";
 
 interface Props {
   name: string;
@@ -24,18 +30,32 @@ export const PackageServicesTable = ({ name, headers }: Props) => {
     service: false,
     updateService: false,
     range: false,
+    updateRange: false,
     confirm: false,
   });
   const [targetId, setTargetId] = useState("");
-  const [dataList, setDataList] = useState<PServiceItem[]>();
+  const [dataView, setDataView] = useState<Views>("services");
+  const [dataList, setDataList] = useState<
+    PServiceItem[] | PackageRangeItem[]
+  >();
 
-  const { packageServicesData: data, revalidateData } = useServices();
+  const {
+    packageServicesData: dataService,
+    revalidateData,
+    packageRangesData: dataRange,
+  } = useServices();
 
   useEffect(() => {
-    if (data) {
-      setDataList(data);
+    if (dataView === "services") {
+      if (dataService) {
+        setDataList(dataService);
+      }
+    } else if (dataView === "ranges") {
+      if (dataRange) {
+        setDataList(dataRange);
+      }
     }
-  }, [data]);
+  }, [dataService, dataRange, dataView]);
 
   const handleModal = (value: boolean, element: Elements) => {
     setOpenModal((prev) => ({ ...prev, [element]: value }));
@@ -46,17 +66,36 @@ export const PackageServicesTable = ({ name, headers }: Props) => {
   };
 
   const handleRemove = async () => {
-    const response: NextResponse<undefined> =
-      await deletePackageService(targetId);
+    if (dataView === "services") {
+      const response: NextResponse<undefined> =
+        await deletePackageService(targetId);
 
-    if (!response.success) return toast.error(`${response.error?.message}`);
-    toast.success(`${response.message}`);
-    revalidateData("package-services");
-    return;
+      if (!response.success) return toast.error(`${response.error?.message}`);
+      toast.success(`${response.message}`);
+      revalidateData("package-services");
+      return;
+    } else if (dataView === "ranges") {
+      const response: NextResponse<undefined> =
+        await deletePackageRange(targetId);
+
+      if (!response.success) return toast.error(`${response.error?.message}`);
+      toast.success(`${response.message}`);
+      revalidateData("package-ranges");
+      return;
+    }
   };
 
   const handleOpenModalUpdate = (value: boolean) => {
-    setOpenModal((prev) => ({ ...prev, ["updateService"]: value }));
+    if (dataView === "services") {
+      setOpenModal((prev) => ({ ...prev, ["updateService"]: value }));
+    } else if (dataView === "ranges") {
+      setOpenModal((prev) => ({ ...prev, ["updateRange"]: value }));
+    }
+  };
+
+  const handleDataView = () => {
+    const option = dataView === "services" ? "ranges" : "services";
+    setDataView(option);
   };
 
   return (
@@ -78,8 +117,8 @@ export const PackageServicesTable = ({ name, headers }: Props) => {
             />
           </div>
         </div>
-        <div className="px-8 py-6 bg-white">
-          <div className="relative">
+        <div className="flex flex-row px-8 py-6 bg-white gap-5">
+          <div className="flex-4 items-center relative">
             <BiSearch
               className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
               size={16}
@@ -92,6 +131,12 @@ export const PackageServicesTable = ({ name, headers }: Props) => {
               className="w-full pl-11 pr-4 py-3 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
             />
           </div>
+          <button
+            onClick={handleDataView}
+            className="flex-1 w-100 h-auto bg-gray-200 hover:brightness-105 active:scale-98 rounded-xl"
+          >
+            {dataView.charAt(0).toUpperCase() + dataView.slice(1)}
+          </button>
         </div>
         <table className="w-full text-sm text-left rtl:text-right text-gray-500 pt-5">
           <thead className="text-xs text-gray-700 uppercase bg-gray-50">
@@ -109,7 +154,7 @@ export const PackageServicesTable = ({ name, headers }: Props) => {
               dataList.map((service) => (
                 <PackageServicesItem
                   key={service.id}
-                  service={service}
+                  item={service}
                   setOpenConfirm={handleOpenModalConfirm}
                   setOpenUpdate={handleOpenModalUpdate}
                   setTargetId={setTargetId}
@@ -136,6 +181,13 @@ export const PackageServicesTable = ({ name, headers }: Props) => {
         name="range"
         setOpen={handleModal}
         option="create"
+      />
+      <AddServiceRangeModal
+        open={openModal.updateRange}
+        name="updateRange"
+        setOpen={handleModal}
+        option="update"
+        targetId={targetId}
       />
       <ConfirmModal
         open={openModal.confirm}
