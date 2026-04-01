@@ -15,6 +15,10 @@ type ServicesContextValue = {
   packageServicesData: PServiceItem[];
   packageRangesData: PackageRangeItem[];
   revalidateData: (option: DataOptions) => void;
+  //* Checked system
+  setAmountService: (id: string, amount: number) => void;
+  setAmountRange: (id: string, amount: number) => void;
+  resetValues: () => void;
 };
 
 const ServicesContext = createContext<ServicesContextValue | null>(null);
@@ -47,6 +51,7 @@ export function ServicesProvider({
             return {
               id: ps.id,
               name: ps.name,
+              amount: 0,
               createdAt: ps.createdAt,
               updatedAt: ps.updatedAt,
             };
@@ -66,6 +71,7 @@ export function ServicesProvider({
               id: pr.id,
               description: pr.description,
               unit: pr.unit,
+              amount: 0,
               createdAt: pr.createdAt,
               updatedAt: pr.updatedAt,
             };
@@ -79,13 +85,58 @@ export function ServicesProvider({
     }
   }, []);
 
+  const setAmountService = useCallback((id: string, amount: number) => {
+    setPackageService((prev) =>
+      prev.map((serv) => {
+        if (serv.id === id) {
+          return { ...serv, amount: amount };
+        }
+        return serv;
+      }),
+    );
+  }, []);
+
+  const setAmountRange = useCallback((id: string, amount: number) => {
+    setPackageRange((prev) =>
+      prev.map((rang) => {
+        if (rang.id === id) {
+          return { ...rang, amount: amount };
+        }
+        return rang;
+      }),
+    );
+  }, []);
+
+  const resetValues = useCallback(() => {
+    setPackageService((prev) =>
+      prev.map((serv) => {
+        return { ...serv, amount: 0 };
+      }),
+    );
+    setPackageRange((prev) =>
+      prev.map((rang) => {
+        return { ...rang, amount: 0 };
+      }),
+    );
+  }, []);
+
   const value = useMemo<ServicesContextValue>(
     () => ({
       packageServicesData: packageService,
       packageRangesData: packageRange,
       revalidateData,
+      setAmountService,
+      setAmountRange,
+      resetValues,
     }),
-    [packageRange, packageService, revalidateData],
+    [
+      packageRange,
+      packageService,
+      revalidateData,
+      setAmountService,
+      setAmountRange,
+      resetValues,
+    ],
   );
 
   return (

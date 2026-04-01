@@ -4,6 +4,7 @@ import { DefaultButton } from "@/components/common/button/DefaultButton";
 import { useState } from "react";
 import { BiSearch } from "react-icons/bi";
 import { ManageServicesModal } from "./ManageServicesModal";
+import { CreatePackageModal } from "./CreatePackageModal";
 
 interface Props {
   name: string;
@@ -11,19 +12,19 @@ interface Props {
   data?: string[];
 }
 
+interface StateOptions {
+  services: boolean;
+  packages: boolean;
+}
+
 export const PackagesTable = ({ name, headers, data }: Props) => {
-  const [service, setService] = useState(false);
+  const [options, setOptions] = useState<StateOptions>({
+    services: false,
+    packages: false,
+  });
 
-  const handleModal = (value: boolean, option: string) => {
-    switch (option) {
-      case "services":
-        setService(value);
-        break;
-
-      default:
-        break;
-    }
-  };
+  const handleModal = (value: boolean, option: string) =>
+    setOptions((prev) => ({ ...prev, [option]: value }));
 
   return (
     <>
@@ -40,6 +41,7 @@ export const PackagesTable = ({ name, headers, data }: Props) => {
               name="Create package"
               loading={false}
               style="bg-pgreen hover:brightness-110"
+              onClick={() => handleModal(true, "packages")}
             />
           </div>
         </div>
@@ -110,7 +112,8 @@ export const PackagesTable = ({ name, headers, data }: Props) => {
             </ul>
           </nav>*/}
       </div>
-      <ManageServicesModal open={service} setOpen={handleModal} />
+      <ManageServicesModal open={options.services} setOpen={handleModal} />
+      <CreatePackageModal open={options.packages} setOpen={handleModal} />
     </>
   );
 };

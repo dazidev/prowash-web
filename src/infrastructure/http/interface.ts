@@ -20,6 +20,7 @@ export interface AdItem {
 export interface PServiceItem {
   id: string;
   name: string;
+  amount: number;
   createdAt: string;
   updatedAt: string;
 }
@@ -28,6 +29,7 @@ export interface PackageRangeItem {
   id: string;
   description: string;
   unit: string;
+  amount: number;
   createdAt: string;
   updatedAt: string;
 }
