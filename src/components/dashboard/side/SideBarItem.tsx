@@ -4,14 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import React from "react";
 import { IconType } from "react-icons";
-import {
-  BsCoin,
-  BsHouse,
-  BsHouseFill,
-  BsNut,
-  BsPeople,
-  BsPeopleFill,
-} from "react-icons/bs";
+import { BsCoin, BsHouseFill, BsNut, BsPeopleFill } from "react-icons/bs";
 
 const ICONS = {
   users: BsPeopleFill,

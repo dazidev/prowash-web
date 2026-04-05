@@ -21,7 +21,7 @@ export const CarouselReviews = ({ reviews }: Props) => {
     if (reviews === undefined) return;
     const grouped = chunkArray(reviews, 3);
     setData(grouped);
-  }, []);
+  }, [reviews]);
 
   return (
     <>

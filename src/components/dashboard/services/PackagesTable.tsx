@@ -17,7 +17,7 @@ interface StateOptions {
   packages: boolean;
 }
 
-export const PackagesTable = ({ name, headers, data }: Props) => {
+export const PackagesTable = ({ name, headers }: Props) => {
   const [options, setOptions] = useState<StateOptions>({
     services: false,
     packages: false,

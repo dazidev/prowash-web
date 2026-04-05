@@ -18,16 +18,7 @@ export const TableItem = ({
   setOpenChangePass,
   setTargetId,
 }: Props) => {
-  const {
-    id,
-    name,
-    lastname,
-    email,
-    role,
-    created_at,
-    updated_at,
-    last_connection,
-  } = user;
+  const { id, name, lastname, email, role, last_connection } = user;
 
   const initialNameLetters = `${name.slice(0, 1).toUpperCase()}${lastname
     .slice(0, 1)

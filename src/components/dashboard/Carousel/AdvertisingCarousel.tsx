@@ -1,6 +1,6 @@
 "use client";
 
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 import { ImageInput } from "../input/ImageInput";
 import { NumberInput } from "../input/NumberInput";
 import Carousel from "./Carousel";

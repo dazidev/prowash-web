@@ -38,7 +38,7 @@ async function uploadImage(
     const url: UrlUpImageResponse = await responseUrl.json();
     if (!url.success) return url.error!;
 
-    const putRes = await fetch(url.data.uploadUrl, {
+    const putRes = await fetch(url.data!.uploadUrl, {
       method: "PUT",
       headers: { "Content-Type": image.type },
       body: image,
@@ -47,7 +47,7 @@ async function uploadImage(
     if (!putRes.ok)
       return { code: "R2_UPLOAD_FAILED", message: "R2 is failing." };
 
-    return url.data.key;
+    return url.data!.key;
   } catch (error) {
     return {
       code: "ERROR_UPLOAD_IMAGE",
@@ -103,7 +103,7 @@ export async function createAdvertising(
   //! todo: saber si respondio con un success = true
 
   if (advData.type === "IMAGE") {
-    const { id } = response.data;
+    const { id } = response.data!;
     const image = advData.image1!;
 
     const key: string | ErrorApi = await uploadImage(id, image);
@@ -114,7 +114,7 @@ export async function createAdvertising(
 
     if (!(typeof attach === "boolean")) return attach;
   } else if (advData.type === "IMAGE_CAROUSEL") {
-    const { id } = response.data;
+    const { id } = response.data!;
     for (let i = 1; i <= 5; i++) {
       const image = `image${i}` as ImageKey;
       const file = advData[image];
