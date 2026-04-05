@@ -1,15 +1,8 @@
 "use client";
 
 import { PackageRangeItem, PServiceItem } from "@/infrastructure";
+import { getName } from "@/infrastructure/utils/services.utils";
 import React from "react";
-
-type Service = {
-  name: string;
-};
-
-type Range = {
-  description: string;
-};
 
 interface Props {
   item: PServiceItem | PackageRangeItem;
@@ -24,32 +17,6 @@ export const PackageServicesItem = ({
   setOpenUpdate,
   setTargetId,
 }: Props) => {
-  const isService = (value: unknown): value is Service => {
-    return (
-      typeof value === "object" &&
-      value !== null &&
-      "name" in value &&
-      typeof (value as any).name === "string"
-    );
-  };
-
-  const isRange = (value: unknown): value is Range => {
-    return (
-      typeof value === "object" &&
-      value !== null &&
-      "description" in value &&
-      typeof (value as any).description === "string"
-    );
-  };
-
-  const getName = (item: PServiceItem | PackageRangeItem) => {
-    if (isService(item)) {
-      return item.name;
-    } else if (isRange(item)) {
-      return item.description;
-    }
-  };
-
   const name = getName(item);
 
   const handleClickDelete = () => {

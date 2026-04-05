@@ -38,10 +38,6 @@ export const AdvertisingCarousel = ({ imageFile, setImageFile }: Props) => {
 
   let amount = Array.from({ length: imageAmount }, (_, i) => i + 1);
 
-  useEffect(() => {
-    amount = Array.from({ length: imageAmount }, (_, i) => i + 1);
-  }, [imageAmount]);
-
   return (
     <div>
       <Carousel loop>

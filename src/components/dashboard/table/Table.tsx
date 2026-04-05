@@ -13,6 +13,7 @@ import {
 } from "@/actions/admins/admins.actions";
 import toast from "react-hot-toast";
 import { ChangePasswordModal } from "../modal/ChangePasswordModal";
+import { AdminForm } from "@/infrastructure";
 
 interface Props {
   name: string;
@@ -88,8 +89,9 @@ export const Table = ({ name, headers, data }: Props) => {
     }
   };
 
-  const handleCreate = async (field: any): Promise<boolean> => {
+  const handleCreate = async (field: AdminForm): Promise<boolean> => {
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(field.email)) return false;
+    if (!field.password) return false;
     if (
       !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/.test(
         field.password,
@@ -119,7 +121,7 @@ export const Table = ({ name, headers, data }: Props) => {
     }
   };
 
-  const handleEdit = async (field: any): Promise<boolean> => {
+  const handleEdit = async (field: AdminForm): Promise<boolean> => {
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(field.email)) return false;
     if (!field.name || !field.lastname || !field.email || !field.role)
       return false;

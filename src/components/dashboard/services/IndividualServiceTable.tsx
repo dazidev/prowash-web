@@ -8,7 +8,7 @@ interface Props {
   data?: string[];
 }
 
-export const IndividualServiceTable = ({ name, headers, data }: Props) => {
+export const IndividualServiceTable = ({ name, headers }: Props) => {
   return (
     <>
       <div className="relative overflow-x-auto shadow-sm sm:rounded-lg w-full">

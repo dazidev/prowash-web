@@ -7,7 +7,7 @@ import React, { useEffect, useState } from "react";
 interface Props {
   open: boolean;
   setOpen: (value: boolean) => void;
-  handleAction: (field: any) => Promise<boolean>;
+  handleAction: (field: AdminForm) => Promise<boolean>;
   type: "create" | "edit";
   user?: User;
 }
@@ -63,7 +63,6 @@ export const FormModal = ({
 
   return (
     <>
-      {/*<!-- Main modal -->*/}
       {open && (
         <div
           id="crud-modal"
@@ -71,9 +70,7 @@ export const FormModal = ({
           className="overflow-y-auto overflow-x-hidden fixed z-50 flex justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full"
         >
           <div className="relative p-4 w-full max-w-md max-h-full">
-            {/*<!-- Modal content -->*/}
             <div className="relative bg-white rounded-lg shadow-sm">
-              {/*<!-- Modal header -->*/}
               <div className="flex items-center justify-between p-4 md:p-5 border-b rounded-t border-gray-200">
                 <h3 className="text-lg font-semibold text-gray-900">
                   {`${
@@ -102,7 +99,6 @@ export const FormModal = ({
                   <span className="sr-only">Close modal</span>
                 </button>
               </div>
-              {/*<!-- Modal body -->*/}
               <form className="p-4 md:p-5" onSubmit={handleSubmit}>
                 <div className="grid gap-4 mb-4 grid-cols-2">
                   <div className="col-span-2">

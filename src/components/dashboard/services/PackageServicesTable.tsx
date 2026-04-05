@@ -1,17 +1,11 @@
 "use client";
 
 import { DefaultButton } from "@/components/common/button/DefaultButton";
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { BiSearch } from "react-icons/bi";
-import { ManageServicesModal } from "./ManageServicesModal";
 import { AddServiceRangeModal } from "./AddServiceRangeModal";
 import { PackageServicesItem } from "./PackageServicesItem";
-import {
-  ApiResponse,
-  NextResponse,
-  PackageRangeItem,
-  PServiceItem,
-} from "@/infrastructure";
+import { NextResponse, PackageRangeItem, PServiceItem } from "@/infrastructure";
 import { useServices } from "@/context/ServicesProvider";
 import { ConfirmModal } from "../modal/ConfirmModal";
 import { deletePackageRange, deletePackageService } from "@/actions";

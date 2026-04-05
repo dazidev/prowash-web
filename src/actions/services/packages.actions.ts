@@ -15,8 +15,10 @@ export async function getPackageServices(): Promise<PServiceItem[] | any> {
 
     if (!res.success) throw res;
     return res;
-  } catch (error: any) {
-    return error;
+  } catch (error: unknown) {
+    return {
+      success: false,
+    };
   }
 }
 
@@ -34,8 +36,10 @@ export async function createPackageService(name: string) {
       ...res,
       message: "The package service has been created successfully",
     };
-  } catch (error: any) {
-    return error;
+  } catch (error: unknown) {
+    return {
+      success: false,
+    };
   }
 }
 
@@ -61,8 +65,10 @@ export async function deletePackageService(id: string) {
       ...res,
       message: "The package service has been deleted successfully",
     };
-  } catch (error: any) {
-    return error;
+  } catch (error: unknown) {
+    return {
+      success: false,
+    };
   }
 }
 
@@ -89,8 +95,10 @@ export async function updatePackageService(id: string, name: string) {
       ...res,
       message: "The package service has been updated successfully",
     };
-  } catch (error: any) {
-    return error;
+  } catch (error: unknown) {
+    return {
+      success: false,
+    };
   }
 }
 
@@ -108,8 +116,10 @@ export async function getPackageRanges(): Promise<PServiceItem[] | any> {
 
     if (!res.success) throw res;
     return res;
-  } catch (error: any) {
-    return error;
+  } catch (error: unknown) {
+    return {
+      success: false,
+    };
   }
 }
 
@@ -127,8 +137,15 @@ export async function createPackageRange(description: string) {
       ...res,
       message: "The package range has been created successfully",
     };
-  } catch (error: any) {
-    return error;
+  } catch (error: unknown) {
+    return {
+      success: false,
+      message: "",
+      error: {
+        code: "string",
+        message: "Error unknown",
+      },
+    };
   }
 }
 
@@ -154,8 +171,15 @@ export async function deletePackageRange(id: string) {
       ...res,
       message: "The package range has been deleted successfully",
     };
-  } catch (error: any) {
-    return error;
+  } catch (error: unknown) {
+    return {
+      success: false,
+      message: "",
+      error: {
+        code: "",
+        message: "Error unknown",
+      },
+    };
   }
 }
 
@@ -182,7 +206,9 @@ export async function updatePackageRange(id: string, description: string) {
       ...res,
       message: "The package range has been updated successfully",
     };
-  } catch (error: any) {
-    return error;
+  } catch (error: unknown) {
+    return {
+      success: false,
+    };
   }
 }

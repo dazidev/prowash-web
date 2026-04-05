@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useState } from "react";
 
 interface Props {
@@ -24,7 +25,7 @@ export const ImageInput = ({
 
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0] ?? null;
-    if (f?.size! > MAX_BYTES)
+    if (f && f.size > MAX_BYTES)
       return setError("The image exceeds the maximum allowed size of 2 MB.");
     setError("");
     setFile(f);
@@ -38,7 +39,7 @@ export const ImageInput = ({
     const url = URL.createObjectURL(file);
     setPreview(url);
     return () => URL.revokeObjectURL(url);
-  }, [file]);
+  }, [file, setPreview]);
 
   return (
     <div className="flex justify-center aspect-[3/2]">
@@ -47,7 +48,7 @@ export const ImageInput = ({
         className="flex flex-col items-center justify-center w-full border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 overflow-hidden"
       >
         {preview ? (
-          <img
+          <Image
             src={preview}
             alt="Preview"
             className="w-full h-full object-cover"

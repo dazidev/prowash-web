@@ -15,7 +15,7 @@ export async function getReviews(): Promise<any> {
 
     if (!res.success) throw res;
     return res;
-  } catch (error: any) {
+  } catch (error: unknown) {
     return error;
   }
 }

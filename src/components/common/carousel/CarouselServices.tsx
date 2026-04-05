@@ -6,7 +6,7 @@ import "swiper/css";
 import "swiper/css/free-mode";
 import "swiper/css/pagination";
 
-import { Autoplay, FreeMode, Pagination } from "swiper/modules";
+import { Autoplay, FreeMode } from "swiper/modules";
 import { ServiceCard } from "@/components/public/ServiceCard";
 
 export default function CarouselServices() {

@@ -24,7 +24,7 @@ export const CreatePackageModal = ({ open, setOpen }: Props) => {
   useEffect(() => {
     resetValues();
     setName("");
-  }, [open]);
+  }, [open, resetValues]);
 
   const handleAmountService = (id: string, amount: string) => {
     if (!/^\d+$/.test(amount) && amount !== "") return;
@@ -65,7 +65,10 @@ export const CreatePackageModal = ({ open, setOpen }: Props) => {
             <h1 className="text-2xl pb-4">Services includes</h1>
             <div className="grid grid-cols-3 gap-x-10 gap-y-4 w-full">
               {servicesData.map((s) => (
-                <div className="flex items-center justify-between w-full">
+                <div
+                  key={s.id}
+                  className="flex items-center justify-between w-full"
+                >
                   <label id={s.id}>{s.name}</label>
                   <input
                     id={`${s.id}-input`}
@@ -82,7 +85,10 @@ export const CreatePackageModal = ({ open, setOpen }: Props) => {
             <h1 className="text-2xl pb-4">Range prices</h1>
             <div className="grid grid-cols-3 gap-x-10 gap-y-4 w-full">
               {rangesData.map((s) => (
-                <div className="flex items-center justify-between w-full gap-5">
+                <div
+                  key={s.id}
+                  className="flex items-center justify-between w-full gap-5"
+                >
                   <label id={s.id}>{s.description}</label>
                   <input
                     id={`${s.id}-input`}
