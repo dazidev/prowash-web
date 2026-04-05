@@ -13,7 +13,7 @@ export async function createAdmin(adminData: AdminForm) {
   });
 
   const data = await admin.json();
-  revalidateTag("admins");
+  revalidateTag("admins", "default");
   return data;
 }
 
@@ -24,7 +24,7 @@ export async function deleteAdmin(id: string) {
   });
 
   const data = await admin.json();
-  revalidateTag("admins");
+  revalidateTag("admins", "default");
   return data;
 }
 
@@ -37,7 +37,7 @@ export async function editAdmin(id: string, adminData: AdminForm) {
   });
 
   const data = await admin.json();
-  revalidateTag("admins");
+  revalidateTag("admins", "default");
   return data;
 }
 

@@ -128,7 +128,7 @@ export async function createAdvertising(
     }
   }
 
-  revalidateTag("advertising");
+  revalidateTag("advertising", "default");
   return true;
 }
 
@@ -165,7 +165,7 @@ export async function deleteAdvertising(
     const response: AdResponse = await deleteAdv.json();
     if (!response.success) return response.error!;
 
-    revalidateTag("advertising");
+    revalidateTag("advertising", "default");
     return true;
   } catch (error) {
     return {
