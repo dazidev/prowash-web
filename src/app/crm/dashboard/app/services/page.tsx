@@ -21,8 +21,8 @@ export default async function AppServicesPage() {
                     min-h-[calc(100vh-8.25rem)] max-h-[calc(100vh-8.25rem)] p-4"
     >
       <ServicesProvider
-        packageServicesData={services.data}
-        packageRangesData={ranges.data}
+        packageServicesData={services.data ?? []}
+        packageRangesData={ranges.data ?? []}
       >
         <div className="flex flex-1">
           <PackagesTable name={"Packages"} headers={headers} />
