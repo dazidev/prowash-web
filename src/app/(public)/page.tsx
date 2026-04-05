@@ -2,7 +2,11 @@
 
 import Image from "next/image";
 import { PrincipalBanner } from "@/components/public/PrincipalBanner";
-import { ServiceCard } from "@/components/public/ServiceCard";
+import { CarouselReviews } from "@/components/common/carousel/CarouselReviews";
+import { getReviews } from "@/actions";
+
+import { IoLogoInstagram, IoLogoFacebook } from "react-icons/io5";
+import CarouselServices from "@/components/common/carousel/CarouselServices";
 
 export default async function PublicPage() {
   const cities = [
@@ -19,6 +23,10 @@ export default async function PublicPage() {
     "Williamston",
     "Easly",
   ];
+
+  const responseReviews = await getReviews();
+
+  const reviews = responseReviews.success === true ? responseReviews.data : [];
 
   return (
     <>
@@ -49,23 +57,8 @@ export default async function PublicPage() {
       <section className="flex justify-center w-full">
         <div className="flex flex-col items-center w-full sm:w-[1350px] min-h-screen justify-between py-25 text-5xl text-white font-bold text-center">
           <h1>AS A CLEANING COMPANY WE OFFER THE FOLLOWING SERVICES</h1>
-          <div className="flex flex-row gap-5">
-            <ServiceCard
-              image={"/images/services/house-washing.webp"}
-              title={"house washing"}
-            />
-            <ServiceCard
-              image={"/images/services/roof-washing.webp"}
-              title={"roof washing"}
-            />
-            <ServiceCard
-              image={"/images/services/gutter-cleaning.webp"}
-              title={"gutter cleaning"}
-            />
-            <ServiceCard
-              image={"/images/services/window-cleaning.webp"}
-              title={"window cleaning"}
-            />
+          <div className="flex flex-row w-full">
+            <CarouselServices />
           </div>
           <h1>AND MORE: PAINTING, REMODELING, GARDEN DESING</h1>
         </div>
@@ -77,8 +70,11 @@ export default async function PublicPage() {
               We shine in Greenville and beyond! Discover our coverage now.
             </h3>
             <div className="grid grid-cols-2 gap-2">
-              {cities.map((city) => (
-                <div className="bg-white p-2 text-4xl text-black text-center font-bold">
+              {cities.map((city, i) => (
+                <div
+                  key={i}
+                  className="bg-white p-2 text-4xl text-black text-center font-bold"
+                >
                   {city}
                 </div>
               ))}
@@ -90,6 +86,50 @@ export default async function PublicPage() {
               className="w-full h-full border-0"
               loading="lazy"
             ></iframe>
+          </div>
+        </div>
+      </section>
+      <section className="flex justify-center w-full">
+        <div className="flex flex-col items-center w-full justify-between sm:w-[1350px] min-h-screen pt-40 pb-20 px-10">
+          <div className="flex flex-col w-full gap-20">
+            <h1 className="text-5xl text-white font-bold text-center">
+              OUR CUSTOMERS RECOMMEND US
+            </h1>
+            <div className="flex flex-row w-full">
+              <CarouselReviews reviews={reviews} />
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-5">
+            <h1 className="text-5xl text-white font-bold text-center">
+              JOIN OUR SOCIAL MEDIA COMMUNITY AND DISCOVER HOW WE MAKE HOMES
+              SHINE!
+            </h1>
+            <div className="flex flex-row justify-center w-full h-auto gap-5">
+              <a
+                href="https://www.instagram.com/prowash_365/"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <IoLogoInstagram
+                  width={10}
+                  height={10}
+                  className="text-white text-6xl"
+                />
+              </a>
+
+              <a
+                href="https://www.facebook.com/people/PRO-WASH-365/61553376090039/?_rdr"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <IoLogoFacebook
+                  width={64}
+                  height={64}
+                  className="text-white text-6xl"
+                />
+              </a>
+            </div>
           </div>
         </div>
       </section>

@@ -9,7 +9,7 @@ export const ServiceCard = ({ image, title }: Props) => {
   const alt = title.replace(" ", "-") + "-image";
   return (
     <div className="flex flex-col w-[300px] h-[400px]">
-      <div className="relative w-full h-[350px]">
+      <div className="relative w-full h-[300px]">
         <Image
           src={image}
           fill

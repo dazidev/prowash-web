@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Pro Wash 365",
-  description: "Page Pro Wash Home",
+  title: "Pro Wash 365 | Pressure Washing",
+  description: "Web Site Pro Wash 365",
 };
 
 export default function RootLayout({

@@ -13,3 +13,11 @@ export interface User {
   updated_at: string;
   last_connection: string | null;
 }
+
+export interface Review {
+  id: string;
+  name: string;
+  rating: number;
+  comment: string;
+  createdAt: string;
+}
