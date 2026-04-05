@@ -1,12 +1,8 @@
 "use server";
 
 import { AdminForm } from "@/infrastructure";
+import { API } from "@/interfaces";
 import { revalidateTag } from "next/cache";
-import { config } from "dotenv";
-
-config();
-
-const API = process.env.API;
 
 export async function createAdmin(adminData: AdminForm) {
   const admin = await fetch(`${API}/api/admin/create`, {

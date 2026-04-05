@@ -8,12 +8,8 @@ import {
   ErrorApi,
   UrlUpImageResponse,
 } from "@/infrastructure";
+import { API } from "@/interfaces";
 import { revalidateTag } from "next/cache";
-import { config } from "dotenv";
-
-config();
-
-const API = process.env.API;
 
 type ImageKey = `image${1 | 2 | 3 | 4 | 5}`;
 

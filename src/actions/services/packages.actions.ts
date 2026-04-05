@@ -1,11 +1,7 @@
 "use server";
 import { regex } from "@/domain";
 import { ApiResponse, PackageRangeItem, PServiceItem } from "@/infrastructure";
-import { config } from "dotenv";
-
-config();
-
-const API = process.env.API;
+import { API } from "@/interfaces";
 
 export async function getPackageServices(): Promise<PServiceItem[] | any> {
   try {

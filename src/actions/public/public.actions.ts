@@ -1,12 +1,7 @@
 "use server";
 
 import { ApiResponse } from "@/infrastructure";
-import { Review } from "@/interfaces";
-import { config } from "dotenv";
-
-config();
-
-const API = process.env.API;
+import { API, Review } from "@/interfaces";
 
 export async function getReviews(): Promise<any> {
   try {

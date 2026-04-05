@@ -1,3 +1,12 @@
+import { config } from "dotenv";
+
+config();
+
+const ENV = process.env.ENVIRONMENT;
+
+export const API =
+  ENV === "production" ? process.env.API : "http://localhost:3000";
+
 export interface UsersResponse {
   success: boolean;
   data: User[];
