@@ -4,7 +4,7 @@ import toast from "react-hot-toast";
 import { AdvertisingCarousel } from "../Carousel/AdvertisingCarousel";
 import { ImageInput } from "../input/ImageInput";
 import { useState } from "react";
-import { createAdvertising } from "@/app/crm/dashboard/app/actions";
+import { createAdvertising } from "@/actions/advertising/advertising.actions";
 import { ErrorApi } from "@/infrastructure";
 import VimeoPlayer from "../video/VimeoPlayer";
 

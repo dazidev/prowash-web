@@ -5,7 +5,7 @@ import { SelectAdvertising } from "../select/SelectAdvertising";
 import { AdvItemCarousel } from "./advertising/AdvItemCarousel";
 import { AdvItemImage } from "./advertising/AdvItemImage";
 import { AdvItemText } from "./advertising/AdvItemText";
-import { deleteAdvertising } from "@/app/crm/dashboard/app/actions";
+import { deleteAdvertising } from "@/actions/advertising/advertising.actions";
 import toast from "react-hot-toast";
 import { AdvItemVideo } from "./advertising/AdvItemVideo";
 

@@ -1,9 +1,16 @@
-import { ApiResponse, HOSTNAME } from "@/infrastructure";
+"use server";
+
+import { ApiResponse } from "@/infrastructure";
 import { Review } from "@/interfaces";
+import { config } from "dotenv";
+
+config();
+
+const API = process.env.API;
 
 export async function getReviews(): Promise<any> {
   try {
-    const response = await fetch(`${HOSTNAME}/api/public/reviews`, {
+    const response = await fetch(`${API}/api/public/reviews`, {
       method: "GET",
       headers: { "Content-Type": "application/json" },
       cache: "no-store",

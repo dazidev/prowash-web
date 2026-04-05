@@ -1,5 +1,3 @@
-export const HOSTNAME = "http://localhost:3000";
-
 export type AdTypes = "TEXT" | "IMAGE" | "IMAGE_CAROUSEL" | "VIDEO";
 
 export interface AdItem {

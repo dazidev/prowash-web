@@ -10,7 +10,7 @@ import {
   createAdmin,
   deleteAdmin,
   editAdmin,
-} from "@/app/crm/dashboard/admins/actions";
+} from "@/actions/admins/admins.actions";
 import toast from "react-hot-toast";
 import { ChangePasswordModal } from "../modal/ChangePasswordModal";
 
@@ -92,7 +92,7 @@ export const Table = ({ name, headers, data }: Props) => {
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(field.email)) return false;
     if (
       !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/.test(
-        field.password
+        field.password,
       )
     )
       return false;

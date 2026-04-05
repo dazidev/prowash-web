@@ -1,4 +1,4 @@
-import { changeAdminPassword } from "@/app/crm/dashboard/admins/actions";
+import { changeAdminPassword } from "@/actions/admins/admins.actions";
 import { regex } from "@/domain";
 import { useState } from "react";
 import toast from "react-hot-toast";

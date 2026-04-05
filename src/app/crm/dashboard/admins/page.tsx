@@ -5,8 +5,10 @@ import { config } from "dotenv";
 
 config();
 
+const API = process.env.API;
+
 const getAdminUsers = async () => {
-  const admins: UsersResponse = await fetch(`${process.env.API}/api/admin`, {
+  const admins: UsersResponse = await fetch(`${API}/api/admin`, {
     method: "GET",
     next: { tags: ["admins"] },
   }).then((res) => res.json()); //! todo: no mezclar estilos

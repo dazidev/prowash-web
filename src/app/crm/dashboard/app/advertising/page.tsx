@@ -1,5 +1,5 @@
 import { MockupPhone, TableAdvertising } from "@/components";
-import { getAdvertising } from "../actions";
+import { getAdvertising } from "../../../../../actions/advertising/advertising.actions";
 
 export default async function AppAdvertisingPage() {
   const adv = await getAdvertising();

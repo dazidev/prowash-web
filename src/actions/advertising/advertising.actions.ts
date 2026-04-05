@@ -6,16 +6,20 @@ import {
   AdvertisingForm,
   ApiBooleanResponse,
   ErrorApi,
-  HOSTNAME,
   UrlUpImageResponse,
 } from "@/infrastructure";
 import { revalidateTag } from "next/cache";
+import { config } from "dotenv";
+
+config();
+
+const API = process.env.API;
 
 type ImageKey = `image${1 | 2 | 3 | 4 | 5}`;
 
 async function uploadImage(
   id: string,
-  image: File
+  image: File,
 ): Promise<string | ErrorApi> {
   try {
     const dataImage = {
@@ -26,13 +30,13 @@ async function uploadImage(
     };
 
     const responseUrl = await fetch(
-      `${HOSTNAME}/api/advertising/${id}/upload/image`,
+      `${API}/api/advertising/${id}/upload/image`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(dataImage),
         cache: "no-store",
-      }
+      },
     );
 
     const url: UrlUpImageResponse = await responseUrl.json();
@@ -59,10 +63,10 @@ async function uploadImage(
 async function attachImage(
   id: string,
   key: string,
-  position?: number
+  position?: number,
 ): Promise<boolean | ErrorApi> {
   try {
-    const url = new URL(`${HOSTNAME}/api/advertising/${id}/image/attach`);
+    const url = new URL(`${API}/api/advertising/${id}/image/attach`);
 
     if (position) url.searchParams.set("image", position.toString());
 
@@ -89,11 +93,10 @@ async function attachImage(
   }
 }
 
-//! todo: el hostname deberia estar en .env
 export async function createAdvertising(
-  advData: AdvertisingForm
+  advData: AdvertisingForm,
 ): Promise<boolean | ErrorApi> {
-  const adv = await fetch(`${HOSTNAME}/api/advertising/create`, {
+  const adv = await fetch(`${API}/api/advertising/create`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(advData),
@@ -135,7 +138,7 @@ export async function createAdvertising(
 
 export async function getAdvertising() {
   try {
-    const arrayAdv = await fetch(`${HOSTNAME}/api/advertising`, {
+    const arrayAdv = await fetch(`${API}/api/advertising`, {
       method: "GET",
       headers: { "Content-Type": "application/json" },
       next: { tags: ["advertising"] },
@@ -154,10 +157,10 @@ export async function getAdvertising() {
 }
 
 export async function deleteAdvertising(
-  id: string
+  id: string,
 ): Promise<boolean | ErrorApi> {
   try {
-    const deleteAdv = await fetch(`${HOSTNAME}/api/advertising/${id}`, {
+    const deleteAdv = await fetch(`${API}/api/advertising/${id}`, {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
       cache: "no-store",

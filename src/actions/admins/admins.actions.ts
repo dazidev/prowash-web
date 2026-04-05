@@ -1,10 +1,15 @@
 "use server";
 
-import { AdminForm, HOSTNAME } from "@/infrastructure";
+import { AdminForm } from "@/infrastructure";
 import { revalidateTag } from "next/cache";
+import { config } from "dotenv";
+
+config();
+
+const API = process.env.API;
 
 export async function createAdmin(adminData: AdminForm) {
-  const admin = await fetch(`${HOSTNAME}/api/admin/create`, {
+  const admin = await fetch(`${API}/api/admin/create`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(adminData),
@@ -17,7 +22,7 @@ export async function createAdmin(adminData: AdminForm) {
 }
 
 export async function deleteAdmin(id: string) {
-  const admin = await fetch(`${HOSTNAME}/api/admin/${id}`, {
+  const admin = await fetch(`${API}/api/admin/${id}`, {
     method: "DELETE",
     cache: "no-store",
   });
@@ -28,7 +33,7 @@ export async function deleteAdmin(id: string) {
 }
 
 export async function editAdmin(id: string, adminData: AdminForm) {
-  const admin = await fetch(`${HOSTNAME}/api/admin/${id}`, {
+  const admin = await fetch(`${API}/api/admin/${id}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(adminData),
@@ -42,7 +47,7 @@ export async function editAdmin(id: string, adminData: AdminForm) {
 
 export async function changeAdminPassword(id: string, password: string) {
   const passObj = { password };
-  const admin = await fetch(`${HOSTNAME}/api/admin/change-password/${id}`, {
+  const admin = await fetch(`${API}/api/admin/change-password/${id}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(passObj),

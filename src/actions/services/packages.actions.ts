@@ -1,15 +1,15 @@
 "use server";
 import { regex } from "@/domain";
-import {
-  ApiResponse,
-  HOSTNAME,
-  PackageRangeItem,
-  PServiceItem,
-} from "@/infrastructure";
+import { ApiResponse, PackageRangeItem, PServiceItem } from "@/infrastructure";
+import { config } from "dotenv";
+
+config();
+
+const API = process.env.API;
 
 export async function getPackageServices(): Promise<PServiceItem[] | any> {
   try {
-    const response = await fetch(`${HOSTNAME}/api/services`, {
+    const response = await fetch(`${API}/api/services`, {
       method: "GET",
       headers: { "Content-Type": "application/json" },
       cache: "no-store",
@@ -26,7 +26,7 @@ export async function getPackageServices(): Promise<PServiceItem[] | any> {
 
 export async function createPackageService(name: string) {
   try {
-    const response = await fetch(`${HOSTNAME}/api/services/create`, {
+    const response = await fetch(`${API}/api/services/create`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name }),
@@ -54,7 +54,7 @@ export async function deletePackageService(id: string) {
     };
 
   try {
-    const response = await fetch(`${HOSTNAME}/api/services/${id}`, {
+    const response = await fetch(`${API}/api/services/${id}`, {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
     });
@@ -81,7 +81,7 @@ export async function updatePackageService(id: string, name: string) {
     };
 
   try {
-    const response = await fetch(`${HOSTNAME}/api/services/${id}`, {
+    const response = await fetch(`${API}/api/services/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name }),
@@ -102,7 +102,7 @@ export async function updatePackageService(id: string, name: string) {
 
 export async function getPackageRanges(): Promise<PServiceItem[] | any> {
   try {
-    const response = await fetch(`${HOSTNAME}/api/services/ranges`, {
+    const response = await fetch(`${API}/api/services/ranges`, {
       method: "GET",
       headers: { "Content-Type": "application/json" },
       cache: "no-store",
@@ -119,7 +119,7 @@ export async function getPackageRanges(): Promise<PServiceItem[] | any> {
 
 export async function createPackageRange(description: string) {
   try {
-    const response = await fetch(`${HOSTNAME}/api/services/ranges`, {
+    const response = await fetch(`${API}/api/services/ranges`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ description, unit: "ft2" }),
@@ -147,7 +147,7 @@ export async function deletePackageRange(id: string) {
     };
 
   try {
-    const response = await fetch(`${HOSTNAME}/api/services/ranges/${id}`, {
+    const response = await fetch(`${API}/api/services/ranges/${id}`, {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
     });
@@ -174,7 +174,7 @@ export async function updatePackageRange(id: string, description: string) {
     };
 
   try {
-    const response = await fetch(`${HOSTNAME}/api/services/ranges/${id}`, {
+    const response = await fetch(`${API}/api/services/ranges/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ description, unit: "ft2" }),
