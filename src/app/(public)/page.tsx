@@ -26,7 +26,8 @@ export default async function PublicPage() {
 
   const responseReviews = await getReviews();
 
-  const reviews = responseReviews.success === true ? responseReviews.data : [];
+  const reviews =
+    responseReviews.success === true ? responseReviews.data : undefined;
 
   return (
     <>

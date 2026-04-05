@@ -36,7 +36,7 @@ export const AdvertisingCarousel = ({ imageFile, setImageFile }: Props) => {
     image5: null,
   });
 
-  let amount = Array.from({ length: imageAmount }, (_, i) => i + 1);
+  const amount = Array.from({ length: imageAmount }, (_, i) => i + 1);
 
   return (
     <div>

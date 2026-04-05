@@ -8,13 +8,20 @@ import { Autoplay } from "swiper/modules";
 import { chunkArray } from "@/infrastructure/utils/chunkArray";
 import { ReviewCard } from "@/components/public/ReviewCard";
 import { Review } from "@/interfaces";
+import { useEffect, useState } from "react";
 
 interface Props {
-  reviews: Review[];
+  reviews: Review[] | undefined;
 }
 
 export const CarouselReviews = ({ reviews }: Props) => {
-  const grouped = chunkArray(reviews, 3);
+  const [data, setData] = useState<Review[][] | undefined>(undefined);
+
+  useEffect(() => {
+    if (reviews === undefined) return;
+    const grouped = chunkArray(reviews, 3);
+    setData(grouped);
+  }, []);
 
   return (
     <>
@@ -27,20 +34,21 @@ export const CarouselReviews = ({ reviews }: Props) => {
         }}
         modules={[Autoplay]}
       >
-        {grouped.map((group, i) => (
-          <SwiperSlide key={i}>
-            <div className="felx justify-center grid grid-cols-1 md:grid-cols-3 gap-3">
-              {group.map((review, j) => (
-                <ReviewCard
-                  key={j}
-                  stars={review.rating}
-                  name={review.name}
-                  comment={review.comment}
-                />
-              ))}
-            </div>
-          </SwiperSlide>
-        ))}
+        {data &&
+          data.map((group, i) => (
+            <SwiperSlide key={i}>
+              <div className="felx justify-center grid grid-cols-1 md:grid-cols-3 gap-3">
+                {group.map((review, j) => (
+                  <ReviewCard
+                    key={j}
+                    stars={review.rating}
+                    name={review.name}
+                    comment={review.comment}
+                  />
+                ))}
+              </div>
+            </SwiperSlide>
+          ))}
       </Swiper>
     </>
   );

@@ -2,8 +2,11 @@
 import { regex } from "@/domain";
 import { ApiResponse, PackageRangeItem, PServiceItem } from "@/infrastructure";
 import { API } from "@/interfaces";
+import { NextResponse } from "../../infrastructure/http/interface";
 
-export async function getPackageServices(): Promise<PServiceItem[] | any> {
+export async function getPackageServices(): Promise<
+  NextResponse<PServiceItem[]>
+> {
   try {
     const response = await fetch(`${API}/api/services`, {
       method: "GET",
@@ -13,7 +16,7 @@ export async function getPackageServices(): Promise<PServiceItem[] | any> {
 
     const res: ApiResponse<PServiceItem[]> = await response.json();
 
-    if (!res.success) throw res;
+    if (!res.success) throw res.error;
     return res;
   } catch (error: unknown) {
     return {
@@ -104,7 +107,9 @@ export async function updatePackageService(id: string, name: string) {
 
 //* Packaga ranges
 
-export async function getPackageRanges(): Promise<PServiceItem[] | any> {
+export async function getPackageRanges(): Promise<
+  NextResponse<PackageRangeItem[]>
+> {
   try {
     const response = await fetch(`${API}/api/services/ranges`, {
       method: "GET",
@@ -114,7 +119,7 @@ export async function getPackageRanges(): Promise<PServiceItem[] | any> {
 
     const res: ApiResponse<PackageRangeItem[]> = await response.json();
 
-    if (!res.success) throw res;
+    if (!res.success) throw res.error;
     return res;
   } catch (error: unknown) {
     return {
