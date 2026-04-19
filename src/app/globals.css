@@ -37,3 +37,10 @@ body {
   color: var(--foreground);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
 }
+
+.bg-photo {
+  background-image: url('../../public/images/background/background.webp');
+  background-size: cover;
+  background-position: center;
+  min-height: 100vh;
+}

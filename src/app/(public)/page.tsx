@@ -30,14 +30,14 @@ export default async function PublicPage() {
     responseReviews.success === true ? responseReviews.data : undefined;
 
   return (
-    <>
+    <div className="w-full sm:w-[1450px] bg-pblue/40">
       <section>
         <div className="flex flex-col items-center justify-center">
-          <div className="flex flex-row justify-between w-full sm:w-[1350px] px-15 py-2 text-3xl font-bold text-black bg-sgreen">
+          <div className="flex flex-row justify-between w-full sm:w-[1450px] px-15 py-2 text-3xl font-bold text-black bg-sgreen">
             <h1>Call now, get professional advice</h1>
             <h1>+1 (864) 349-3989</h1>
           </div>
-          <div className="relative w-full h-[600px] sm:w-[1350px]">
+          <div className="relative w-full h-[600px] sm:w-[1450px]">
             <PrincipalBanner
               image={"/images/banner-1.png"}
               alt={"banner-1"}
@@ -134,6 +134,6 @@ export default async function PublicPage() {
           </div>
         </div>
       </section>
-    </>
+    </div>
   );
 }
