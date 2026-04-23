@@ -1,13 +1,13 @@
 "use server";
 
 import { IndividualServiceTable } from "@/components/dashboard/services/IndividualServiceTable";
-import { PackagesTable } from "../../../../../components/dashboard/services/PackagesTable";
 import {
   getPackageRanges,
   getPackageServices,
 } from "@/actions/services/packages.actions";
 import { ServicesProvider } from "@/context/ServicesProvider";
 import { PServiceItem, NextResponse, PackageRangeItem } from "@/infrastructure";
+import { PackagesTable } from "@/components/dashboard/services/PackagesTable";
 
 export default async function AppServicesPage() {
   const headers = ["Name", "Description", "Actions"];

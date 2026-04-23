@@ -1,11 +1,7 @@
-import { config } from "dotenv";
-
-config();
-
-const ENV = process.env.ENVIRONMENT;
+const ENV = process.env.NEXT_PUBLIC_ENVIRONMENT;
 
 export const API =
-  ENV === "production" ? process.env.API : "http://localhost:3000";
+  ENV === "production" ? process.env.NEXT_PUBLIC_API : "http://localhost:3000";
 
 export interface UsersResponse {
   success: boolean;

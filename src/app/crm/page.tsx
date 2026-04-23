@@ -1,7 +1,5 @@
-export default function CrmPage() {
-  return (
-    <div>
-      <h1>Hello to CRM prowash page</h1>
-    </div>
-  );
+import { redirect } from "next/navigation";
+
+export default async function AppPage() {
+  redirect("/crm/home");
 }
