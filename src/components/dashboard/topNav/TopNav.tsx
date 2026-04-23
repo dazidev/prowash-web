@@ -1,11 +1,11 @@
-import React from "react";
 import { TopNavItem } from "./TopNavItem";
+import { UserOptions } from "./UserOptions";
 
 export const TopNav = () => {
   return (
     <nav className="fixed top-0 z-50 w-[95%] h-20 m-4 rounded-xl">
       <div className="flex flex-row px-3 py-3 lg:px-5 lg:pl-3">
-        <div className="flex items-center justify-end pl-5">
+        <div className="flex items-center h-14 justify-end pl-5">
           <span className="text-4xl font-extrabold text-[#0841D9]">
             ProWash
           </span>
@@ -16,15 +16,21 @@ export const TopNav = () => {
 
         <div className="flex-1">
           <ul className="flex flex-row justify-center">
-            <TopNavItem path="/crm/dashboard/home" labelText="Home" />
-            <TopNavItem path="/crm/dashboard/admins" labelText="Admins" />
-            <TopNavItem path="/crm/dashboard/clients" labelText="Clients" />
-            <TopNavItem path="/crm/dashboard/app" labelText="App" />
+            <TopNavItem path="/crm/home" labelText="Home" />
+            <TopNavItem path="/crm/admins" labelText="Admins" />
+            <TopNavItem path="/crm/clients" labelText="Clients" />
+            <TopNavItem path="/crm/app" labelText="App" />
           </ul>
         </div>
 
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white font-semibold">
+        <div className="">
+          <UserOptions
+            name={"Daniel"}
+            lastname={"Zipa"}
+            email={"danielzipa@outlook.com"}
+            role={"Admin"}
+          />
+          {/* <div className="w-10 h-10 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white font-semibold">
             DZ
           </div>
           <div className="flex flex-col">
@@ -32,7 +38,7 @@ export const TopNav = () => {
               Hi, Daniel Zipa
             </div>
             <div className="text-sm text-slate-500">danielzipa@outlook.com</div>
-          </div>
+          </div> */}
         </div>
       </div>
     </nav>

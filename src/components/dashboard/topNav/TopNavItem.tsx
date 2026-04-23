@@ -42,7 +42,7 @@ export const TopNavItem = ({ path, labelText }: Props) => {
         </div>
         {labelText === "App" && openMenu.app === true && (
           <div className="absolute top-15 flex flex-col w-auto h-auto bg-gray-100 py-2 px-3 gap-2 rounded-xl">
-            <Link href={"/crm/dashboard/app/advertising"}>
+            <Link href={"/crm/app/advertising"}>
               <span
                 className={`${
                   path === currentPath
@@ -53,7 +53,7 @@ export const TopNavItem = ({ path, labelText }: Props) => {
                 Advertising
               </span>
             </Link>
-            <Link href={"/crm/dashboard/app/services"}>
+            <Link href={"/crm/app/services"}>
               <span
                 className={`${
                   path === currentPath
