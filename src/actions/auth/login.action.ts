@@ -1,45 +1,39 @@
-"use client";
+"use server";
 
-import { ActionResponse, ApiError, LoginResponse } from "@/interfaces";
-import api from "@/infrastructure/lib/axios";
-import { getErrorMessage } from "@/infrastructure";
+import { signIn } from "@/infrastructure/lib/auth";
+import { AuthError } from "next-auth";
+import { isRedirectError } from "next/dist/client/components/redirect-error";
 
-export async function loginUser(
-  formData: FormData,
-): Promise<ActionResponse<LoginResponse | ApiError>> {
-  let deviceId = localStorage.getItem("deviceId");
-  const userAgent = navigator.userAgent;
+interface Data {
+  email: string;
+  password: string;
+  deviceId: string;
+  deviceInfo: string;
+}
 
-  if (!deviceId) {
-    deviceId = crypto.randomUUID();
-    localStorage.setItem("deviceId", deviceId);
-  }
-
-  const body = {
-    email: formData.get("email"),
-    password: formData.get("password"),
-    deviceId,
-    deviceInfo: userAgent,
-  };
+export async function authenticate(data: Data) {
+  const { email, password, deviceId, deviceInfo } = data;
 
   try {
-    const res = await api.post("/auth/login", body);
-    if (res.status === 201) {
-      const data: LoginResponse = res.data;
-
-      return {
-        success: true,
-        data,
-      };
-    } else {
-      const data: ApiError = res.data;
-      throw new Error(data.message);
-    }
+    await signIn("credentials", {
+      email,
+      password,
+      deviceId,
+      deviceInfo,
+      redirectTo: "/crm/home", // 👈 ponlo aquí
+    });
   } catch (error) {
-    const message = getErrorMessage(error);
-    return {
-      success: false,
-      message: message,
-    };
+    if (isRedirectError(error)) throw error; // 👈 deja pasar el redirect
+
+    if (error instanceof AuthError) {
+      switch (error.type) {
+        case "CredentialsSignin":
+          return "Invalid credentials";
+        default:
+          return "Something went wrong";
+      }
+    }
+
+    throw error;
   }
 }

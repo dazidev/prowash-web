@@ -10,6 +10,8 @@ export default function LoginPage() {
           alt="Logo"
           width={300}
           height={300}
+          priority
+          style={{ height: "auto" }}
         ></Image>
       </div>
       <h1

@@ -1,8 +1,18 @@
-"use server";
-
 import { AdminForm } from "@/infrastructure";
-import { API } from "@/interfaces";
-import { revalidateTag } from "next/cache";
+import api from "@/infrastructure/lib/axios";
+import { API, User } from "@/interfaces";
+
+export async function getAdmins() {
+  try {
+    const res = await api.get("/admin");
+
+    //console.log(res.data);
+    return res.data;
+  } catch (error) {
+    console.log(error);
+    return [];
+  }
+}
 
 export async function createAdmin(adminData: AdminForm) {
   const admin = await fetch(`${API}/api/admin/create`, {
@@ -13,7 +23,7 @@ export async function createAdmin(adminData: AdminForm) {
   });
 
   const data = await admin.json();
-  revalidateTag("admins", "default");
+  // revalidateTag("admins", "default");
   return data;
 }
 
@@ -24,7 +34,7 @@ export async function deleteAdmin(id: string) {
   });
 
   const data = await admin.json();
-  revalidateTag("admins", "default");
+  // revalidateTag("admins", "default");
   return data;
 }
 
@@ -37,7 +47,7 @@ export async function editAdmin(id: string, adminData: AdminForm) {
   });
 
   const data = await admin.json();
-  revalidateTag("admins", "default");
+  // revalidateTag("admins", "default");
   return data;
 }
 
