@@ -3,5 +3,5 @@ export interface AdminForm {
   lastname: string;
   email: string;
   password?: string;
-  role: string;
+  roles: string;
 }

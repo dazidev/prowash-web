@@ -103,7 +103,7 @@ export const Table = ({ name, headers, data }: Props) => {
       !field.lastname ||
       !field.email ||
       !field.password ||
-      !field.role
+      !field.roles
     )
       return false;
     try {
@@ -123,7 +123,7 @@ export const Table = ({ name, headers, data }: Props) => {
 
   const handleEdit = async (field: AdminForm): Promise<boolean> => {
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(field.email)) return false;
-    if (!field.name || !field.lastname || !field.email || !field.role)
+    if (!field.name || !field.lastname || !field.email || !field.roles)
       return false;
 
     try {

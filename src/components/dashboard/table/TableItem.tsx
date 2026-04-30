@@ -18,13 +18,13 @@ export const TableItem = ({
   setOpenChangePass,
   setTargetId,
 }: Props) => {
-  const { id, name, lastname, email, role, last_connection } = user;
+  const { id, name, lastname, email, roles, lastLogin } = user;
 
   const initialNameLetters = `${name.slice(0, 1).toUpperCase()}${lastname
     .slice(0, 1)
     .toUpperCase()}`;
   const fullName = `${name} ${lastname}`;
-  const formatRole = role.replace("_", " ");
+  const formatRole = roles[0];
 
   const handleClickDelete = () => {
     setOpenConfirm(true);
@@ -68,7 +68,7 @@ export const TableItem = ({
           Active
         </span>
       </td>
-      <td className="px-6 py-4">{last_connection}</td>
+      <td className="px-6 py-4">{lastLogin}</td>
       <td className="px-6 py-4">
         <div className="flex items-center gap-2">
           <button

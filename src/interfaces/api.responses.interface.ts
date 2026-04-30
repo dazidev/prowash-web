@@ -13,10 +13,10 @@ export interface User {
   name: string;
   lastname: string;
   email: string;
-  role: string;
-  created_at: string;
-  updated_at: string;
-  last_connection: string | null;
+  roles: string;
+  createdAt: string;
+  updatedAt: string;
+  lastLogin: string | null;
 }
 
 export interface Review {

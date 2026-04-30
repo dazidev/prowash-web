@@ -7,7 +7,7 @@ export const Spinner = ({ size = "w-6 h-6" }: Props) => {
     <div className="flex justify-center">
       <svg
         aria-hidden="true"
-        className={`${size} text-neutral-tertiary animate-spin fill-gold-700`}
+        className={`${size} text-neutral-tertiary animate-spin fill-pblue`}
         viewBox="0 0 100 101"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"

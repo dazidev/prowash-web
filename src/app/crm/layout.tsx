@@ -1,30 +1,22 @@
-"use client";
-
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
-import api from "@/infrastructure/lib/axios";
+import { SessionGuard } from "@/components/auth/SessionGuard";
 import { TopNav } from "@/components/dashboard/topNav/TopNav";
-import { useAuth } from "@/context/AuthProvider";
+import { auth } from "@/infrastructure/lib/auth";
+import { redirect } from "next/navigation";
 
-export default function CRMLayout({ children }: { children: React.ReactNode }) {
-  const router = useRouter();
-  const { tokenAccess } = useAuth();
+export default async function CRMLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const session = await auth();
 
-  useEffect(() => {
-    if (!tokenAccess) {
-    }
-
-    const checkAuth = async () => {
-      try {
-        await api.get("/auth/check-status");
-      } catch (error) {}
-    };
-
-    checkAuth();
-  }, [router, tokenAccess]);
+  if (!session?.user) {
+    redirect("/auth/login");
+  }
 
   return (
     <div className="flex flex-col items-center min-h-screen overflow-hidden">
+      <SessionGuard />
       <TopNav />
 
       <main className="pt-28 w-full min-h-0 bg-white flex-1">{children}</main>

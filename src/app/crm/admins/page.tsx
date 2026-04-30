@@ -1,23 +1,10 @@
+import { getAdmins } from "@/actions";
 import { Table } from "@/components/dashboard/table/Table";
-import { UsersResponse } from "@/interfaces";
-
-import { config } from "dotenv";
-
-config();
-
-const API = process.env.API;
-
-const getAdminUsers = async () => {
-  const admins: UsersResponse = await fetch(`${API}/api/admin`, {
-    method: "GET",
-    next: { tags: ["admins"] },
-  }).then((res) => res.json()); //! todo: no mezclar estilos
-
-  return admins.data; //! todo: manejar el error si no viene el admin.data
-};
+import { API, User } from "@/interfaces";
 
 export default async function UsersPage() {
-  const admins = await getAdminUsers();
+  const admins = await getAdmins();
+  console.log(admins);
   const listHeaders = [
     "Administrator",
     "Email",

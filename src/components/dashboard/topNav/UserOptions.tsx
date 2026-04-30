@@ -3,9 +3,7 @@
 // import { logout } from "@/src/actions";
 import { useRef, useState } from "react";
 import { useClickOutside } from "@/infrastructure/hooks/useClickOutside";
-import { logoutUser } from "@/actions/auth/logout.action";
-import { useRouter } from "next/navigation";
-import { useAuth } from "@/context/AuthProvider";
+import { logout } from "@/actions";
 
 interface Props {
   name: string;
@@ -19,18 +17,8 @@ export const UserOptions = ({ name, lastname, email, role }: Props) => {
   const btnRef = useRef<HTMLButtonElement>(null);
   const [open, setOpen] = useState(false);
   const shortName = `${name?.slice(0, 1)}${lastname?.slice(0, 1)}`;
-  const router = useRouter();
-  const { setTokenAccess } = useAuth();
 
   useClickOutside(menuRef, () => setOpen(false), [btnRef]);
-
-  const logout = async () => {
-    //! HANDLE THE RESPONSE
-    const res = await logoutUser();
-    setTokenAccess(null);
-
-    router.push("/auth/login");
-  };
 
   return (
     <>

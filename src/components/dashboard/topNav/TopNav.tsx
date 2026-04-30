@@ -30,15 +30,6 @@ export const TopNav = () => {
             email={"danielzipa@outlook.com"}
             role={"Admin"}
           />
-          {/* <div className="w-10 h-10 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white font-semibold">
-            DZ
-          </div>
-          <div className="flex flex-col">
-            <div className="text-lg font-semibold text-slate-900">
-              Hi, Daniel Zipa
-            </div>
-            <div className="text-sm text-slate-500">danielzipa@outlook.com</div>
-          </div> */}
         </div>
       </div>
     </nav>
