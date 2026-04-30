@@ -26,8 +26,7 @@ export default async function PublicPage() {
 
   const responseReviews = await getReviews();
 
-  const reviews =
-    responseReviews.success === true ? responseReviews.data : undefined;
+  const reviews = responseReviews ? responseReviews : undefined;
 
   return (
     <div className="w-full sm:w-[1450px] bg-pblue/40">

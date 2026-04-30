@@ -3,7 +3,7 @@
 import { ApiResponse } from "@/infrastructure";
 import { API, Review } from "@/interfaces";
 
-export async function getReviews(): Promise<ApiResponse<Review[] | undefined>> {
+export async function getReviews(): Promise<Review[] | undefined> {
   try {
     const response = await fetch(`${API}/api/public/reviews`, {
       method: "GET",
@@ -11,13 +11,10 @@ export async function getReviews(): Promise<ApiResponse<Review[] | undefined>> {
       cache: "no-store",
     });
 
-    const res: ApiResponse<Review[]> = await response.json();
+    const res: Review[] = await response.json();
 
-    if (!res.success) throw res.error;
     return res;
   } catch (error: unknown) {
-    return {
-      success: false,
-    };
+    return undefined;
   }
 }
