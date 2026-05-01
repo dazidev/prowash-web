@@ -12,26 +12,31 @@ interface Data {
 }
 
 export async function authenticate(data: Data) {
-  const { email, password, deviceId, deviceInfo } = data;
-
   try {
     await signIn("credentials", {
-      email,
-      password,
-      deviceId,
-      deviceInfo,
-      redirectTo: "/crm/home", // 👈 ponlo aquí
+      email: data.email,
+      password: data.password,
+      deviceId: data.deviceId,
+      deviceInfo: data.deviceInfo,
+      redirectTo: "/crm/home",
     });
   } catch (error) {
-    if (isRedirectError(error)) throw error; // 👈 deja pasar el redirect
+    if (isRedirectError(error)) {
+      throw error;
+    }
 
     if (error instanceof AuthError) {
-      switch (error.type) {
-        case "CredentialsSignin":
-          return "Invalid credentials";
-        default:
-          return "Something went wrong";
+      if (error.type === "CredentialsSignin") {
+        return {
+          ok: false,
+          message: "Invalid credentials",
+        };
       }
+
+      return {
+        ok: false,
+        message: "Something went wrong",
+      };
     }
 
     throw error;

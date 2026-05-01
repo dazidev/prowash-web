@@ -1,3 +1,5 @@
+"use server";
+
 import { SessionGuard } from "@/components/auth/SessionGuard";
 import { TopNav } from "@/components/dashboard/topNav/TopNav";
 import { auth } from "@/infrastructure/lib/auth";

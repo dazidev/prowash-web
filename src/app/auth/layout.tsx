@@ -8,7 +8,7 @@ export default async function Authlayout({
 }) {
   const session = await auth();
 
-  if (session?.user) {
+  if (session?.user && !session.error) {
     redirect("/crm/home");
   }
 

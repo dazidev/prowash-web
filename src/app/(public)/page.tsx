@@ -7,6 +7,8 @@ import { getReviews } from "@/actions";
 
 import { IoLogoInstagram, IoLogoFacebook } from "react-icons/io5";
 import CarouselServices from "@/components/common/carousel/CarouselServices";
+import { FormContact } from "@/components";
+import Link from "next/link";
 
 export default async function PublicPage() {
   const cities = [
@@ -30,7 +32,7 @@ export default async function PublicPage() {
 
   return (
     <div className="w-full sm:w-[1450px] bg-pblue/40">
-      <section>
+      <section id="home">
         <div className="flex flex-col items-center justify-center">
           <div className="flex flex-row justify-between w-full sm:w-[1450px] px-15 py-2 text-3xl font-bold text-black bg-sgreen">
             <h1>Call now, get professional advice</h1>
@@ -54,18 +56,23 @@ export default async function PublicPage() {
           </div>
         </div>
       </section>
-      <section className="flex justify-center w-full">
-        <div className="flex flex-col items-center w-full sm:w-[1350px] min-h-screen justify-between py-25 text-5xl text-white font-bold text-center">
+      <section
+        id="services"
+        className="min-h-screen flex justify-center items-center w-full px-4 py-30"
+      >
+        <div className="flex flex-col items-center justify-center gap-16 w-full max-w-[1350px] max-h-[900px] py-24 text-5xl text-white font-bold text-center">
           <h1>AS A CLEANING COMPANY WE OFFER THE FOLLOWING SERVICES</h1>
-          <div className="flex flex-row w-full">
+
+          <div className="w-full py-10">
             <CarouselServices />
           </div>
-          <h1>AND MORE: PAINTING, REMODELING, GARDEN DESING</h1>
+
+          <h1>AND MORE: PAINTING, REMODELING, GARDEN DESIGN</h1>
         </div>
       </section>
-      <section className="flex justify-center w-full">
+      <section id="coverage" className="flex justify-center w-full">
         <div className="flex flex-row items-center w-full sm:w-[1350px] min-h-screen justify-between pt-30 pb-10 px-10">
-          <div className="flex flex-col justify-between w-7/15 h-full bg-sgreen px-10 py-15">
+          <div className="flex flex-col justify-between w-7/15 h-full bg-sgreen px-10 py-15 max-h-[900px]">
             <h3 className="text-6xl font-extrabold text-center px-5">
               We shine in Greenville and beyond! Discover our coverage now.
             </h3>
@@ -80,7 +87,7 @@ export default async function PublicPage() {
               ))}
             </div>
           </div>
-          <div className="w-8/15 h-full">
+          <div className="w-8/15 h-full max-h-[900px]">
             <iframe
               src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d52401.4833330151!2d-82.40200886788611!3d34.82876151196402!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x88578f6662fa1105%3A0xd8aa9d77bf257696!2sGreenville%2C%20SC%2C%20USA!5e0!3m2!1sen!2smx!4v1775100563057!5m2!1sen!2smx"
               className="w-full h-full border-0"
@@ -89,7 +96,7 @@ export default async function PublicPage() {
           </div>
         </div>
       </section>
-      <section className="flex justify-center w-full">
+      <section id="aboutUs" className="flex justify-center w-full">
         <div className="flex flex-col items-center w-full justify-between sm:w-[1350px] min-h-screen pt-40 pb-20 px-10">
           <div className="flex flex-col w-full gap-20">
             <h1 className="text-5xl text-white font-bold text-center">
@@ -132,6 +139,29 @@ export default async function PublicPage() {
             </div>
           </div>
         </div>
+      </section>
+      <section id="contactUs" className="flex min-h-screen w-full flex-col">
+        <div className="flex flex-1 items-center justify-center w-full px-10">
+          <div className="w-full max-w-[1350px] flex justify-center">
+            <FormContact />
+          </div>
+        </div>
+
+        <footer className="flex w-full justify-between items-center px-2 py-5 text-white text-xl bg-pgreen">
+          <span>&copy; 2023 - 2026 Pro Wash 365. All rights reserved.</span>
+
+          <div className="flex text-2xl font-bold gap-5">
+            <Link className="hover:scale-105" href="">
+              Privacy Policy
+            </Link>
+
+            <p>|</p>
+
+            <Link className="hover:scale-105" href="">
+              Terms & Conditions
+            </Link>
+          </div>
+        </footer>
       </section>
     </div>
   );

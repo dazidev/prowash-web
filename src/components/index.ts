@@ -1,3 +1,5 @@
+export { FormContact } from "./public/FormContact";
+
 export { SideBar } from "./dashboard/side/SideBar";
 export { SelectAdvertising } from "./dashboard/select/SelectAdvertising";
 export { TableAdvertising } from "./dashboard/table/TableAdvertising";

@@ -33,8 +33,8 @@ export const LoginForm = () => {
 
     const result = await authenticate(data);
 
-    if (result) {
-      setErrorMessage(result);
+    if (!result?.ok) {
+      setErrorMessage(result?.message!);
     }
 
     setIsLoading(false);

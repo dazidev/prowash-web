@@ -1,12 +1,12 @@
+"use server";
+
 import { AdminForm } from "@/infrastructure";
-import api from "@/infrastructure/lib/axios";
-import { API, User } from "@/interfaces";
+import { serverApi } from "@/infrastructure/lib/api/server-api";
+import { API } from "@/interfaces";
 
 export async function getAdmins() {
   try {
-    const res = await api.get("/admin");
-
-    //console.log(res.data);
+    const res = await serverApi.get("/admin");
     return res.data;
   } catch (error) {
     console.log(error);

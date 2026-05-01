@@ -1,10 +1,10 @@
+"use server";
+
 import { getAdmins } from "@/actions";
 import { Table } from "@/components/dashboard/table/Table";
-import { API, User } from "@/interfaces";
 
 export default async function UsersPage() {
   const admins = await getAdmins();
-  console.log(admins);
   const listHeaders = [
     "Administrator",
     "Email",

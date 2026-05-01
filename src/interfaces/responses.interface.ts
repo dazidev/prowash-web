@@ -12,7 +12,7 @@ export interface ApiError {
 
 export type UserStatus = "ACTIVE" | "INACTIVE" | "SUSPENDED";
 
-export interface LoginResponse {
+export interface AuthUser {
   id: string;
   name: string;
   lastname: string;
@@ -22,5 +22,20 @@ export interface LoginResponse {
   isPhoneNumberVerified: boolean;
   roles: string[];
   status: UserStatus;
+}
+
+export interface LoginWebResponse {
+  user: AuthUser;
   accessToken: string;
+  refreshToken: string;
+  accessTokenExpiresIn: number;
+  refreshTokenExpiresIn: number;
+  sessionId: string;
+}
+
+export interface RefreshWebResponse {
+  accessToken: string;
+  refreshToken?: string;
+  accessTokenExpiresIn: number; // seconds
+  refreshTokenExpiresIn?: number; // seconds
 }
