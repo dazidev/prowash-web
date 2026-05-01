@@ -1,6 +1,5 @@
 "use server";
 
-import { ApiResponse } from "@/infrastructure";
 import { API, Review } from "@/interfaces";
 
 export async function getReviews(): Promise<Review[] | undefined> {
