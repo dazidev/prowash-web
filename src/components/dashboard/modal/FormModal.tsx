@@ -24,7 +24,7 @@ export const FormModal = ({
     lastname: "",
     email: "",
     password: "",
-    role: "",
+    roles: "",
   });
 
   useEffect(() => {
@@ -34,7 +34,7 @@ export const FormModal = ({
         lastname: user.lastname,
         email: user.email,
         password: "",
-        role: user.role,
+        roles: user.roles,
       });
     }
   }, [user]);
@@ -49,7 +49,7 @@ export const FormModal = ({
       lastname: "",
       email: "",
       password: "",
-      role: "",
+      roles: "",
     }));
   };
 
@@ -194,7 +194,7 @@ export const FormModal = ({
                     <select
                       id="role"
                       className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5"
-                      value={field.role}
+                      value={field.roles}
                       onChange={(e) => handleChange(e.target.value, "role")}
                     >
                       <option value="">Select role</option>
