@@ -1,9 +1,9 @@
-"use server";
-
 import { SessionGuard } from "@/components/auth/SessionGuard";
 import { TopNav } from "@/components/dashboard/topNav/TopNav";
 import { auth } from "@/infrastructure/lib/auth";
 import { redirect } from "next/navigation";
+
+export const dynamic = "force-dynamic";
 
 export default async function CRMLayout({
   children,
