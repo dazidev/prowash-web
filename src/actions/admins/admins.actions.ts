@@ -7,7 +7,7 @@ import { API } from "@/interfaces";
 export async function getAdmins() {
   try {
     const res = await serverApi.get("/admin");
-    return res.data;
+    return res?.data ?? [];
   } catch (error) {
     console.log(error);
     return [];
