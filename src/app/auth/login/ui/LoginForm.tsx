@@ -11,7 +11,7 @@ export const LoginForm = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [showPass, setShowPass] = useState<boolean>(false);
 
-  const login = async (e: React.FormEvent<HTMLFormElement>) => {
+  const login = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
     const formData = new FormData(e.currentTarget);

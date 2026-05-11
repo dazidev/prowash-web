@@ -1,6 +1,5 @@
 "use client";
 
-// import { logout } from "@/src/actions";
 import { useRef, useState } from "react";
 import { useClickOutside } from "@/infrastructure/hooks/useClickOutside";
 import { logout } from "@/actions";

@@ -24,7 +24,7 @@ export const FormModal = ({
     lastname: "",
     email: "",
     password: "",
-    roles: "",
+    roles: [""],
   });
 
   useEffect(() => {
@@ -49,7 +49,7 @@ export const FormModal = ({
       lastname: "",
       email: "",
       password: "",
-      roles: "",
+      roles: [""],
     }));
   };
 

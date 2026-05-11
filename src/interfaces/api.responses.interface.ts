@@ -13,10 +13,25 @@ export interface User {
   name: string;
   lastname: string;
   email: string;
-  roles: string;
+  roles: string[];
   createdAt: string;
   updatedAt: string;
   lastLogin: string | null;
+}
+
+type ContactStatus = "ATTENDED" | "NOT_ATTENDED";
+
+export interface Contact {
+  id: string;
+  name: string;
+  lastname: string | null;
+  email: string;
+  zipcode: string | null;
+  phone: string;
+  status: ContactStatus;
+  comments: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface Review {

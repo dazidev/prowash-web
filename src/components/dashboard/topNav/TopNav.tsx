@@ -6,12 +6,8 @@ export const TopNav = () => {
     <nav className="fixed top-0 z-50 w-[95%] h-20 m-4 rounded-xl">
       <div className="flex flex-row px-3 py-3 lg:px-5 lg:pl-3">
         <div className="flex items-center h-14 justify-end pl-5">
-          <span className="text-4xl font-extrabold text-[#0841D9]">
-            ProWash
-          </span>
-          <span className="text-4xl font-extrabold text-[#97c000] ml-2">
-            365
-          </span>
+          <span className="text-4xl font-extrabold text-pblue">ProWash</span>
+          <span className="text-4xl font-extrabold text-pgreen ml-2">365</span>
         </div>
 
         <div className="flex-1">
@@ -20,6 +16,7 @@ export const TopNav = () => {
             <TopNavItem path="/crm/admins" labelText="Admins" />
             <TopNavItem path="/crm/clients" labelText="Clients" />
             <TopNavItem path="/crm/app" labelText="App" />
+            <TopNavItem path="/crm/contacts" labelText="Contacts" />
           </ul>
         </div>
 
