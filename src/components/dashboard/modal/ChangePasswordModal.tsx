@@ -15,20 +15,16 @@ export const ChangePasswordModal = ({ id, open, setOpen }: Props) => {
     repeatPassword: "",
   });
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!regex.password.test(newPass.password)) return;
     if (!regex.password.test(newPass.repeatPassword)) return;
     if (!(newPass.password === newPass.repeatPassword)) return;
 
-    try {
-      const response = await changeAdminPassword(id, newPass.password);
-      if (!response.success) return toast.error(`${response.error.code}`);
+    const response = await changeAdminPassword(id, newPass.password);
+    if (!response.success) return toast.error(`${response.message}`);
 
-      toast.success("The password administrator has been edit successfully");
-    } catch (error) {
-      return toast.error(`${error}`);
-    }
+    toast.success(`${response.message}`);
 
     setNewPass({
       password: "",

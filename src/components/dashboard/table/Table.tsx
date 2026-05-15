@@ -126,33 +126,20 @@ export const Table = (props: Props) => {
   };
 
   const handleRemove = async () => {
-    if (props.name === "Contacts") {
-      const remove = await deleteContact(targetId);
+    const remove =
+      props.name === "Contacts"
+        ? await deleteContact(targetId)
+        : await deleteAdmin(targetId);
 
-      setTargetId("");
-      if (!remove.success) {
-        toast.error(remove.message!);
-        return;
-      }
-
-      router.refresh();
-      toast.success(remove.message!);
+    setTargetId("");
+    if (!remove.success) {
+      toast.error(remove.message!);
       return;
     }
-    try {
-      const remove = await deleteAdmin(targetId);
 
-      if (!remove.success) {
-        toast.error(`${remove.error.code}`);
-        return;
-      }
-
-      toast.success("The administrator has been deleted successfully");
-    } catch (error) {
-      toast.error(`${error}`);
-    } finally {
-      setTargetId("");
-    }
+    router.refresh();
+    toast.success(remove.message!);
+    return;
   };
 
   const handleCreate = async (field: AdminForm): Promise<boolean> => {
@@ -178,20 +165,18 @@ export const Table = (props: Props) => {
       return false;
     }
 
-    try {
-      const response = await createAdmin(field);
+    console.log(field);
 
-      if (!response.success) {
-        toast.error(`${response.error.code}`);
-        return false;
-      }
+    const response = await createAdmin(field);
 
-      toast.success("The administrator has been created successfully");
-      return true;
-    } catch (error) {
-      toast.error(`${error}`);
+    if (!response.success) {
+      toast.error(`${response.message}`);
       return false;
     }
+
+    router.refresh();
+    toast.success(`${response.message}`);
+    return true;
   };
 
   const handleEdit = async (field: AdminForm): Promise<boolean> => {
@@ -201,20 +186,23 @@ export const Table = (props: Props) => {
       return false;
     }
 
-    try {
-      const response = await editAdmin(targetId, field);
+    const data = {
+      name: field.name,
+      lastname: field.lastname,
+      email: field.email,
+      roles: field.roles,
+    };
 
-      if (!response.success) {
-        toast.error(`${response.error.code}`);
-        return false;
-      }
+    const response = await editAdmin(targetId, data);
 
-      toast.success("The administrator has been edited successfully");
-      return true;
-    } catch (error) {
-      toast.error(`${error}`);
+    if (!response.success) {
+      toast.error(`${response.message}`);
       return false;
     }
+
+    router.refresh();
+    toast.success(`${response.message}`);
+    return true;
   };
 
   return (

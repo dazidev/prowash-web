@@ -53,7 +53,7 @@ export const FormModal = ({
     }));
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     const response = await handleAction(field);
     if (!response) return;
@@ -67,7 +67,7 @@ export const FormModal = ({
         <div
           id="crud-modal"
           tabIndex={-1}
-          className="overflow-y-auto overflow-x-hidden fixed z-50 flex justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full"
+          className="overflow-y-auto overflow-x-hidden bg-black/50 fixed z-50 flex justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full"
         >
           <div className="relative p-4 w-full max-w-md max-h-full">
             <div className="relative bg-white rounded-lg shadow-sm">
@@ -195,10 +195,11 @@ export const FormModal = ({
                       id="role"
                       className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5"
                       value={field.roles}
-                      onChange={(e) => handleChange(e.target.value, "role")}
+                      onChange={(e) => handleChange(e.target.value, "roles")}
                     >
                       <option value="">Select role</option>
-                      <option value="GENERAL_ADMIN">General Admin</option>
+                      <option value="ADMIN">Administrator</option>
+                      <option value="MOD">Moderator</option>
                     </select>
                   </div>
                 </div>

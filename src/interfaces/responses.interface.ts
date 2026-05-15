@@ -5,8 +5,8 @@ export interface ActionResponse<T> {
 }
 
 export interface ApiError {
-  message: string;
-  error: string;
+  message: string | string[];
+  error?: string;
   statusCode: number;
 }
 

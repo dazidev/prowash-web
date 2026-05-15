@@ -1,8 +1,9 @@
 "use server";
 
-import { AdminForm } from "@/infrastructure";
+import { AdminForm, getAxiosError } from "@/infrastructure";
 import { serverApi } from "@/infrastructure/lib/api/server-api";
-import { API } from "@/interfaces";
+import { ActionResponse, API, ApiError } from "@/interfaces";
+import axios from "axios";
 
 export async function getAdmins() {
   try {
@@ -14,52 +15,92 @@ export async function getAdmins() {
   }
 }
 
-export async function createAdmin(adminData: AdminForm) {
-  const admin = await fetch(`${API}/api/admin/create`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(adminData),
-    cache: "no-store",
-  });
+export async function createAdmin(
+  adminData: AdminForm,
+): Promise<ActionResponse<undefined>> {
+  try {
+    const res = await serverApi.post("/admin", adminData);
 
-  const data = await admin.json();
-  // revalidateTag("admins", "default");
-  return data;
+    return {
+      success: true,
+      data: res.data,
+      message: "The administrator has been created successfully",
+    };
+  } catch (error: unknown) {
+    console.log(error);
+    const message = getAxiosError(error);
+    return {
+      success: false,
+      message: message ?? "An error occurred while creating the administrator.",
+    };
+  }
 }
 
-export async function deleteAdmin(id: string) {
-  const admin = await fetch(`${API}/api/admin/${id}`, {
-    method: "DELETE",
-    cache: "no-store",
-  });
+export async function deleteAdmin(
+  id: string,
+): Promise<ActionResponse<undefined>> {
+  try {
+    await serverApi.delete(`/admin/${id}`);
 
-  const data = await admin.json();
-  // revalidateTag("admins", "default");
-  return data;
+    return {
+      success: true,
+      message: "The administrator has been deleted successfully",
+    };
+  } catch (error: unknown) {
+    console.log(error);
+    const message = getAxiosError(error);
+    return {
+      success: false,
+      message: message ?? "An error occurred while deleting the administrator.",
+    };
+  }
 }
 
-export async function editAdmin(id: string, adminData: AdminForm) {
-  const admin = await fetch(`${API}/api/admin/${id}`, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(adminData),
-    cache: "no-store",
-  });
+export async function editAdmin(
+  id: string,
+  adminData: AdminForm,
+): Promise<ActionResponse<undefined>> {
+  const data = {
+    name: adminData.name,
+    lastname: adminData.lastname,
+    email: adminData.email,
+    roles: adminData.roles[0],
+  };
 
-  const data = await admin.json();
-  // revalidateTag("admins", "default");
-  return data;
+  try {
+    await serverApi.patch(`/admin/${id}`, data);
+
+    return {
+      success: true,
+      message: "The administrator has been updated successfully",
+    };
+  } catch (error: unknown) {
+    console.log(error);
+    const message = getAxiosError(error);
+    return {
+      success: false,
+      message: message ?? "An error occurred while updating the administrator.",
+    };
+  }
 }
 
-export async function changeAdminPassword(id: string, password: string) {
-  const passObj = { password };
-  const admin = await fetch(`${API}/api/admin/change-password/${id}`, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(passObj),
-    cache: "no-store",
-  });
+export async function changeAdminPassword(
+  id: string,
+  password: string,
+): Promise<ActionResponse<undefined>> {
+  try {
+    await serverApi.patch(`/admin/password/${id}`, { password });
 
-  const data = await admin.json();
-  return data;
+    return {
+      success: true,
+      message: "The administrator has been updated successfully",
+    };
+  } catch (error: unknown) {
+    console.log(error);
+    const message = getAxiosError(error);
+    return {
+      success: false,
+      message: message ?? "An error occurred while updating the administrator.",
+    };
+  }
 }
