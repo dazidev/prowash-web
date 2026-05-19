@@ -1,10 +1,16 @@
 "use client";
 
 import { DefaultButton } from "@/components/common/button/DefaultButton";
-import { useState } from "react";
+import { SetStateAction, useEffect, useState } from "react";
 import { BiSearch } from "react-icons/bi";
 import { ManageServicesModal } from "./ManageServicesModal";
 import { CreatePackageModal } from "./CreatePackageModal";
+import { useServices } from "@/context/ServicesProvider";
+import { PackageResponse } from "@/infrastructure";
+import { PackageItem } from "./PackageItem";
+import { deletePackage } from "@/actions";
+import toast from "react-hot-toast";
+import { ConfirmModal } from "../modal/ConfirmModal";
 
 interface Props {
   name: string;
@@ -15,16 +21,43 @@ interface Props {
 interface StateOptions {
   services: boolean;
   packages: boolean;
+  confirm: boolean;
 }
 
 export const PackagesTable = ({ name, headers }: Props) => {
   const [options, setOptions] = useState<StateOptions>({
     services: false,
     packages: false,
+    confirm: false,
   });
+  const [data, setData] = useState<PackageResponse[]>();
+  const [targetId, setTargetId] = useState<string>("");
+  const { packageData, revalidateData } = useServices();
+
+  useEffect(() => {
+    if (packageData) {
+      setData(packageData);
+    }
+  }, [packageData]);
 
   const handleModal = (value: boolean, option: string) =>
     setOptions((prev) => ({ ...prev, [option]: value }));
+
+  const handleOpenModalConfirm = (value: boolean) => {
+    setOptions((prev) => ({ ...prev, ["confirm"]: value }));
+  };
+
+  const handleRemove = async () => {
+    const response = await deletePackage(targetId);
+
+    if (!response.success) {
+      toast.error(`${response.message}`);
+      return;
+    }
+    toast.success(`${response.message}`);
+    revalidateData("packages");
+    return;
+  };
 
   return (
     <>
@@ -72,17 +105,18 @@ export const PackagesTable = ({ name, headers }: Props) => {
             </tr>
           </thead>
           <tbody>
-            {/*dataList &&
-              dataList.map((admin) => (
-                <TableItem
-                  key={admin.id}
-                  user={admin}
+            {data &&
+              data.map((packageItem) => (
+                <PackageItem
+                  key={packageItem.id}
+                  item={packageItem}
                   setOpenConfirm={handleOpenModalConfirm}
-                  setOpenEdit={handleOpenModalEdit}
-                  setOpenChangePass={handleOpenModalChangePassword}
+                  setOpenUpdate={function (value: boolean): void {
+                    throw new Error("Function not implemented.");
+                  }}
                   setTargetId={setTargetId}
                 />
-              ))*/}
+              ))}
           </tbody>
         </table>
         {/*<nav className="flex items-center flex-column flex-wrap md:flex-row justify-between pt-4" aria-label="Table navigation">
@@ -114,6 +148,11 @@ export const PackagesTable = ({ name, headers }: Props) => {
       </div>
       <ManageServicesModal open={options.services} setOpen={handleModal} />
       <CreatePackageModal open={options.packages} setOpen={handleModal} />
+      <ConfirmModal
+        open={options.confirm}
+        setOpen={handleOpenModalConfirm}
+        handleRemove={handleRemove}
+      />
     </>
   );
 };

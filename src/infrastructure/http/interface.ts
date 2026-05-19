@@ -32,6 +32,33 @@ export interface PackageRangeItem {
   updatedAt: string;
 }
 
+export interface ServiceOnPackage {
+  id: string;
+  amount: number;
+  serviceId: string;
+  packageId: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface PackagePrice {
+  id: string;
+  price: number;
+  packageId: string;
+  rangeId: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface PackageResponse {
+  id: string;
+  name: string;
+  createdAt: string;
+  updatedAt: string;
+  ServiceOnPackage: ServiceOnPackage[];
+  PackagePrice: PackagePrice[];
+}
+
 export interface UploadUrl {
   uploadUrl: string;
   key: string;

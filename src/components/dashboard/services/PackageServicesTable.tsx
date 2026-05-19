@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { BiSearch } from "react-icons/bi";
 import { AddServiceRangeModal } from "./AddServiceRangeModal";
 import { PackageServicesItem } from "./PackageServicesItem";
-import { NextResponse, PackageRangeItem, PServiceItem } from "@/infrastructure";
+import { PackageRangeItem, PServiceItem } from "@/infrastructure";
 import { useServices } from "@/context/ServicesProvider";
 import { ConfirmModal } from "../modal/ConfirmModal";
 import { deletePackageRange, deletePackageService } from "@/actions";
@@ -61,18 +61,16 @@ export const PackageServicesTable = ({ name, headers }: Props) => {
 
   const handleRemove = async () => {
     if (dataView === "services") {
-      const response: NextResponse<undefined> =
-        await deletePackageService(targetId);
+      const response = await deletePackageService(targetId);
 
-      if (!response.success) return toast.error(`${response.error?.message}`);
+      if (!response.success) return toast.error(`${response.message}`);
       toast.success(`${response.message}`);
       revalidateData("package-services");
       return;
     } else if (dataView === "ranges") {
-      const response: NextResponse<undefined> =
-        await deletePackageRange(targetId);
+      const response = await deletePackageRange(targetId);
 
-      if (!response.success) return toast.error(`${response.error?.message}`);
+      if (!response.success) return toast.error(`${response.message}`);
       toast.success(`${response.message}`);
       revalidateData("package-ranges");
       return;

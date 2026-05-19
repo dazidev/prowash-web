@@ -3,17 +3,18 @@
 import { IndividualServiceTable } from "@/components/dashboard/services/IndividualServiceTable";
 import {
   getPackageRanges,
+  getPackages,
   getPackageServices,
 } from "@/actions/services/packages.actions";
 import { ServicesProvider } from "@/context/ServicesProvider";
-import { PServiceItem, NextResponse, PackageRangeItem } from "@/infrastructure";
 import { PackagesTable } from "@/components/dashboard/services/PackagesTable";
 
 export default async function AppServicesPage() {
-  const headers = ["Name", "Description", "Actions"];
+  const headers = ["Name", "Actions"];
 
-  const services: NextResponse<PServiceItem[]> = await getPackageServices(); //! todo: making better.
-  const ranges: NextResponse<PackageRangeItem[]> = await getPackageRanges();
+  const services = await getPackageServices();
+  const ranges = await getPackageRanges();
+  const packages = await getPackages();
 
   return (
     <div
@@ -23,6 +24,7 @@ export default async function AppServicesPage() {
       <ServicesProvider
         packageServicesData={services.data ?? []}
         packageRangesData={ranges.data ?? []}
+        packageData={packages.data ?? []}
       >
         <div className="flex flex-1">
           <PackagesTable name={"Packages"} headers={headers} />

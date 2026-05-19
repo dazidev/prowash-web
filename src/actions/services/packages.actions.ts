@@ -1,219 +1,273 @@
 "use server";
 import { regex } from "@/domain";
-import { ApiResponse, PackageRangeItem, PServiceItem } from "@/infrastructure";
-import { API } from "@/interfaces";
-import { NextResponse } from "../../infrastructure/http/interface";
+import {
+  getAxiosError,
+  PackageRangeItem,
+  PServiceItem,
+} from "@/infrastructure";
+import { ActionResponse } from "@/interfaces";
+import { PackageResponse } from "../../infrastructure/http/interface";
+import { serverApi } from "@/infrastructure/lib/api/server-api";
 
 export async function getPackageServices(): Promise<
-  NextResponse<PServiceItem[]>
+  ActionResponse<PServiceItem[]>
 > {
   try {
-    const response = await fetch(`${API}/api/services`, {
-      method: "GET",
-      headers: { "Content-Type": "application/json" },
-      cache: "no-store",
-    });
+    const response = await serverApi.get("/catalog/services");
 
-    const res: ApiResponse<PServiceItem[]> = await response.json();
-
-    if (!res.success) throw res.error;
-    return res;
+    return {
+      success: true,
+      data: response.data,
+    };
   } catch (error: unknown) {
+    console.log(error);
+    const message = getAxiosError(error);
     return {
       success: false,
+      message: message ?? "An error occurred while getting the services.",
     };
   }
 }
 
-export async function createPackageService(name: string) {
+export async function createPackageService(
+  name: string,
+): Promise<ActionResponse<PServiceItem>> {
   try {
-    const response = await fetch(`${API}/api/services/create`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name }),
-    });
-
-    const res: ApiResponse<PServiceItem> = await response.json();
+    await serverApi.post("/catalog/service", { name });
 
     return {
-      ...res,
+      success: true,
       message: "The package service has been created successfully",
     };
   } catch (error: unknown) {
+    console.log(error);
+    const message = getAxiosError(error);
     return {
       success: false,
+      message: message ?? "An error occurred while creating the service.",
     };
   }
 }
 
-export async function deletePackageService(id: string) {
+export async function deletePackageService(
+  id: string,
+): Promise<ActionResponse<undefined>> {
   if (!regex.uuidv4.test(id))
     return {
       success: false,
-      error: {
-        code: "INVALID_ID",
-        message: "Invalid Id",
-      },
+      message: "Invalid id",
     };
 
   try {
-    const response = await fetch(`${API}/api/services/${id}`, {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-    });
-
-    const res: ApiResponse<undefined> = await response.json();
+    await serverApi.delete(`/catalog/service/${id}`);
 
     return {
-      ...res,
+      success: true,
       message: "The package service has been deleted successfully",
     };
   } catch (error: unknown) {
+    console.log(error);
+    const message = getAxiosError(error);
     return {
       success: false,
+      message: message ?? "An error occurred while deleting the service.",
     };
   }
 }
 
-export async function updatePackageService(id: string, name: string) {
+export async function updatePackageService(
+  id: string,
+  name: string,
+): Promise<ActionResponse<PServiceItem>> {
   if (!regex.uuidv4.test(id))
     return {
       success: false,
-      error: {
-        code: "INVALID_ID",
-        message: "Invalid Id",
-      },
+      message: "Invalid id",
     };
 
   try {
-    const response = await fetch(`${API}/api/services/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name }),
-    });
-
-    const res: ApiResponse<PServiceItem> = await response.json();
+    const response = await serverApi.patch(`/catalog/service/${id}`, { name });
 
     return {
-      ...res,
+      success: true,
+      data: response.data,
       message: "The package service has been updated successfully",
     };
   } catch (error: unknown) {
+    console.log(error);
+    const message = getAxiosError(error);
     return {
       success: false,
+      message: message ?? "An error occurred while updating the service.",
     };
   }
 }
 
-//* Packaga ranges
+//* Package ranges
 
 export async function getPackageRanges(): Promise<
-  NextResponse<PackageRangeItem[]>
+  ActionResponse<PackageRangeItem[]>
 > {
   try {
-    const response = await fetch(`${API}/api/services/ranges`, {
-      method: "GET",
-      headers: { "Content-Type": "application/json" },
-      cache: "no-store",
-    });
+    const response = await serverApi.get("/catalog/ranges");
 
-    const res: ApiResponse<PackageRangeItem[]> = await response.json();
-
-    if (!res.success) throw res.error;
-    return res;
+    return {
+      success: true,
+      data: response.data,
+    };
   } catch (error: unknown) {
+    console.log(error);
+    const message = getAxiosError(error);
     return {
       success: false,
+      message: message ?? "An error occurred while getting the ranges.",
     };
   }
 }
 
-export async function createPackageRange(description: string) {
+export async function createPackageRange(
+  description: string,
+): Promise<ActionResponse<PackageRangeItem>> {
   try {
-    const response = await fetch(`${API}/api/services/ranges`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ description, unit: "ft2" }),
+    await serverApi.post("/catalog/range", {
+      description,
+      unit: "ft2",
     });
 
-    const res: ApiResponse<PackageRangeItem> = await response.json();
-
     return {
-      ...res,
+      success: true,
       message: "The package range has been created successfully",
     };
   } catch (error: unknown) {
+    console.log(error);
+    const message = getAxiosError(error);
     return {
       success: false,
-      message: "",
-      error: {
-        code: "string",
-        message: "Error unknown",
-      },
+      message: message ?? "An error occurred while creating the range.",
     };
   }
 }
 
-export async function deletePackageRange(id: string) {
+export async function deletePackageRange(
+  id: string,
+): Promise<ActionResponse<undefined>> {
   if (!regex.uuidv4.test(id))
     return {
       success: false,
-      error: {
-        code: "INVALID_ID",
-        message: "Invalid Id",
-      },
+      message: "Invalid id",
     };
 
   try {
-    const response = await fetch(`${API}/api/services/ranges/${id}`, {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-    });
-
-    const res: ApiResponse<undefined> = await response.json();
+    const response = await serverApi.delete(`/catalog/range/${id}`);
 
     return {
-      ...res,
+      success: true,
       message: "The package range has been deleted successfully",
     };
   } catch (error: unknown) {
+    console.log(error);
+    const message = getAxiosError(error);
     return {
       success: false,
-      message: "",
-      error: {
-        code: "",
-        message: "Error unknown",
-      },
+      message: message ?? "An error occurred while deleting the range.",
     };
   }
 }
 
-export async function updatePackageRange(id: string, description: string) {
+export async function updatePackageRange(
+  id: string,
+  description: string,
+): Promise<ActionResponse<PackageRangeItem>> {
   if (!regex.uuidv4.test(id))
     return {
       success: false,
-      error: {
-        code: "INVALID_ID",
-        message: "Invalid Id",
-      },
+      message: "Invalid id",
     };
 
   try {
-    const response = await fetch(`${API}/api/services/ranges/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ description, unit: "ft2" }),
+    const response = await serverApi.patch(`/catalog/range/${id}`, {
+      description,
+      unit: "ft2",
     });
 
-    const res: ApiResponse<PackageRangeItem> = await response.json();
-
     return {
-      ...res,
+      success: true,
       message: "The package range has been updated successfully",
     };
   } catch (error: unknown) {
+    console.log(error);
+    const message = getAxiosError(error);
     return {
       success: false,
+      message: message ?? "An error occurred while deleting the range.",
+    };
+  }
+}
+
+//* Packages
+
+export async function getPackages(): Promise<
+  ActionResponse<PackageResponse[]>
+> {
+  try {
+    const response = await serverApi.get("/catalog/packages");
+
+    return {
+      success: true,
+      data: response.data,
+    };
+  } catch (error: unknown) {
+    console.log(error);
+    const message = getAxiosError(error);
+    return {
+      success: false,
+      message: message ?? "An error occurred while getting the packages.",
+    };
+  }
+}
+
+export async function createPackage(
+  data: object,
+): Promise<ActionResponse<object>> {
+  try {
+    await serverApi.post("/catalog/package", data);
+
+    return {
+      success: true,
+      message: "The package has been created successfully",
+    };
+  } catch (error: unknown) {
+    console.log(error);
+    const message = getAxiosError(error);
+    return {
+      success: false,
+      message: message ?? "An error occurred while creating the package.",
+    };
+  }
+}
+
+export async function deletePackage(
+  id: string,
+): Promise<ActionResponse<undefined>> {
+  if (!regex.uuidv4.test(id))
+    return {
+      success: false,
+      message: "Invalid id",
+    };
+
+  try {
+    const response = await serverApi.delete(`/catalog/package/${id}`);
+
+    return {
+      success: true,
+      message: "The package has been deleted successfully",
+    };
+  } catch (error: unknown) {
+    console.log(error);
+    const message = getAxiosError(error);
+    return {
+      success: false,
+      message: message ?? "An error occurred while deleting the package.",
     };
   }
 }

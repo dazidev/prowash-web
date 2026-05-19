@@ -1,10 +1,12 @@
 "use client";
 
+import { createPackage } from "@/actions";
 import { CloseButton } from "@/components/common/button/CloseButton";
 import { DefaultButton } from "@/components/common/button/DefaultButton";
 import { TextInput } from "@/components/common/input/TextInput";
 import { useServices } from "@/context/ServicesProvider";
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 
 interface Props {
   open: boolean;
@@ -18,6 +20,7 @@ export const CreatePackageModal = ({ open, setOpen }: Props) => {
     setAmountService,
     setAmountRange,
     resetValues,
+    revalidateData,
   } = useServices();
   const [name, setName] = useState("");
 
@@ -36,6 +39,54 @@ export const CreatePackageModal = ({ open, setOpen }: Props) => {
     if (!/^\d+$/.test(price) && price !== "") return;
     if (Number(price) < 0) return;
     setAmountRange(id, +price);
+  };
+
+  const handleCreate = async () => {
+    if (!name) {
+      toast.error("Enter service name");
+      return;
+    }
+
+    const services = servicesData
+      .filter((service) => service.amount !== 0)
+      .map((service) => ({
+        serviceId: service.id,
+        amount: service.amount,
+      }));
+
+    const ranges = rangesData
+      .filter((range) => range.amount !== 0)
+      .map((range) => ({
+        rangeId: range.id,
+        price: range.amount,
+      }));
+
+    if (services.length === 0) {
+      toast.error("Include a service");
+      return;
+    }
+    if (ranges.length === 0) {
+      toast.error("Include a range");
+      return;
+    }
+
+    const data = {
+      name,
+      services,
+      ranges,
+    };
+
+    const response = await createPackage(data);
+
+    if (!response.success) {
+      toast.error(`${response.message}`);
+      return;
+    }
+
+    revalidateData("packages");
+    setOpen(false, "packages");
+    toast.success(`${response.message}`);
+    return;
   };
 
   if (!open) return null;
@@ -103,7 +154,11 @@ export const CreatePackageModal = ({ open, setOpen }: Props) => {
           </div>
           <div className="flex justify-end w-full">
             <div className="flex w-52 p-5 justify-end">
-              <DefaultButton name={"Create package"} loading={false} />
+              <DefaultButton
+                name={"Create package"}
+                loading={false}
+                onClick={handleCreate}
+              />
             </div>
           </div>
         </div>

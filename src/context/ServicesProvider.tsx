@@ -1,6 +1,10 @@
 "use client";
-import { getPackageRanges, getPackageServices } from "@/actions";
-import { NextResponse, PackageRangeItem, PServiceItem } from "@/infrastructure";
+import { getPackageRanges, getPackages, getPackageServices } from "@/actions";
+import {
+  PackageRangeItem,
+  PackageResponse,
+  PServiceItem,
+} from "@/infrastructure";
 import React, {
   createContext,
   useCallback,
@@ -9,11 +13,12 @@ import React, {
   useState,
 } from "react";
 
-type DataOptions = "package-services" | "package-ranges";
+type DataOptions = "package-services" | "package-ranges" | "packages";
 
 type ServicesContextValue = {
   packageServicesData: PServiceItem[];
   packageRangesData: PackageRangeItem[];
+  packageData: PackageResponse[];
   revalidateData: (option: DataOptions) => void;
   //* Checked system
   setAmountService: (id: string, amount: number) => void;
@@ -27,23 +32,25 @@ interface Props {
   children: React.ReactNode;
   packageServicesData: PServiceItem[];
   packageRangesData: PackageRangeItem[];
+  packageData: PackageResponse[];
 }
 
 export function ServicesProvider({
   children,
   packageServicesData,
   packageRangesData,
+  packageData,
 }: Props) {
   const [packageService, setPackageService] =
     useState<PServiceItem[]>(packageServicesData);
   const [packageRange, setPackageRange] =
     useState<PackageRangeItem[]>(packageRangesData);
+  const [packages, setPackages] = useState<PackageResponse[]>(packageData);
 
   const revalidateData = useCallback(async (option: DataOptions) => {
     switch (option) {
       case "package-services":
-        const servicesResponse: NextResponse<PServiceItem[]> =
-          await getPackageServices();
+        const servicesResponse = await getPackageServices();
         if (!servicesResponse.success) return;
         if (!servicesResponse.data) return;
         const dataServices: PServiceItem[] = servicesResponse.data?.map(
@@ -61,8 +68,7 @@ export function ServicesProvider({
         break;
 
       case "package-ranges":
-        const rangesResponse: NextResponse<PackageRangeItem[]> =
-          await getPackageRanges();
+        const rangesResponse = await getPackageRanges();
         if (!rangesResponse.success) return;
         if (!rangesResponse.data) return;
         const dataRanges: PackageRangeItem[] = rangesResponse.data?.map(
@@ -78,6 +84,14 @@ export function ServicesProvider({
           },
         );
         setPackageRange(dataRanges);
+        break;
+
+      case "packages":
+        const packageResponse = await getPackages();
+        if (!packageResponse.success) return;
+        if (!packageResponse.data) return;
+        const dataPackages: PackageResponse[] = packageResponse.data;
+        setPackages(dataPackages);
         break;
 
       default:
@@ -124,6 +138,7 @@ export function ServicesProvider({
     () => ({
       packageServicesData: packageService,
       packageRangesData: packageRange,
+      packageData: packages,
       revalidateData,
       setAmountService,
       setAmountRange,
@@ -132,6 +147,7 @@ export function ServicesProvider({
     [
       packageRange,
       packageService,
+      packages,
       revalidateData,
       setAmountService,
       setAmountRange,
