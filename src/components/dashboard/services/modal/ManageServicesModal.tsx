@@ -1,7 +1,7 @@
 "use client";
 
 import { CloseButton } from "@/components/common/button/CloseButton";
-import { PackageServicesTable } from "./PackageServicesTable";
+import { PackageServicesTable } from "../PackageServicesTable";
 
 interface Props {
   open: boolean;

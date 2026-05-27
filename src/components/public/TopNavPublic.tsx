@@ -37,7 +37,7 @@ export const TopNavPublic = () => {
       className={`
         fixed flex top-0 z-50 w-full h-20 justify-center
         transition-all duration-300
-        ${scrolled ? "bg-sgreen/80 backdrop-blur-md shadow-lg" : "bg-pblue/80"}
+        ${scrolled ? "bg-pblue" : "bg-pblue/80"}
       `}
     >
       <div className="relative flex flex-row justify-between w-full max-w-[1450px] px-5 xl:px-10 py-3">

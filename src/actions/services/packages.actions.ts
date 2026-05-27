@@ -5,7 +5,11 @@ import {
   PackageRangeItem,
   PServiceItem,
 } from "@/infrastructure";
-import { ActionResponse } from "@/interfaces";
+import {
+  ActionResponse,
+  IndividualService,
+  IndividualServiceResponse,
+} from "@/interfaces";
 import { PackageResponse } from "../../infrastructure/http/interface";
 import { serverApi } from "@/infrastructure/lib/api/server-api";
 
@@ -268,6 +272,54 @@ export async function deletePackage(
     return {
       success: false,
       message: message ?? "An error occurred while deleting the package.",
+    };
+  }
+}
+
+// * Individual Services
+export async function getIndividualServices(): Promise<
+  ActionResponse<IndividualServiceResponse[]>
+> {
+  try {
+    const response = await serverApi.get("/catalog/individual-services");
+
+    return {
+      success: true,
+      data: response.data,
+    };
+  } catch (error: unknown) {
+    console.log(error);
+    const message = getAxiosError(error);
+    return {
+      success: false,
+      message:
+        message ?? "An error occurred while getting the individual service.",
+    };
+  }
+}
+
+export async function createIndividualService(
+  individualService: IndividualService,
+): Promise<ActionResponse<undefined>> {
+  try {
+    const data = {
+      serviceId: individualService.serviceId,
+      initialPrice: +individualService.initialPrice,
+    };
+
+    const response = await serverApi.post("/catalog/individual-service", data);
+
+    return {
+      success: true,
+      data: response.data,
+    };
+  } catch (error: unknown) {
+    const message = getAxiosError(error);
+
+    return {
+      success: false,
+      message:
+        message ?? "An error occurred while creating the individual service.",
     };
   }
 }

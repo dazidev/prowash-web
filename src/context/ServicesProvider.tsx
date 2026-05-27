@@ -1,10 +1,16 @@
 "use client";
-import { getPackageRanges, getPackages, getPackageServices } from "@/actions";
+import {
+  getIndividualServices,
+  getPackageRanges,
+  getPackages,
+  getPackageServices,
+} from "@/actions";
 import {
   PackageRangeItem,
   PackageResponse,
   PServiceItem,
 } from "@/infrastructure";
+import { IndividualServiceResponse } from "@/interfaces";
 import React, {
   createContext,
   useCallback,
@@ -13,12 +19,17 @@ import React, {
   useState,
 } from "react";
 
-type DataOptions = "package-services" | "package-ranges" | "packages";
+type DataOptions =
+  | "package-services"
+  | "package-ranges"
+  | "packages"
+  | "individual-services";
 
 type ServicesContextValue = {
   packageServicesData: PServiceItem[];
   packageRangesData: PackageRangeItem[];
   packageData: PackageResponse[];
+  individualServicesData: IndividualServiceResponse[];
   revalidateData: (option: DataOptions) => void;
   //* Checked system
   setAmountService: (id: string, amount: number) => void;
@@ -33,6 +44,7 @@ interface Props {
   packageServicesData: PServiceItem[];
   packageRangesData: PackageRangeItem[];
   packageData: PackageResponse[];
+  individualServicesData: IndividualServiceResponse[];
 }
 
 export function ServicesProvider({
@@ -40,12 +52,16 @@ export function ServicesProvider({
   packageServicesData,
   packageRangesData,
   packageData,
+  individualServicesData,
 }: Props) {
   const [packageService, setPackageService] =
     useState<PServiceItem[]>(packageServicesData);
   const [packageRange, setPackageRange] =
     useState<PackageRangeItem[]>(packageRangesData);
   const [packages, setPackages] = useState<PackageResponse[]>(packageData);
+  const [individualServices, setIndividualServices] = useState<
+    IndividualServiceResponse[]
+  >(individualServicesData);
 
   const revalidateData = useCallback(async (option: DataOptions) => {
     switch (option) {
@@ -96,6 +112,15 @@ export function ServicesProvider({
 
       default:
         break;
+
+      case "individual-services":
+        const individualServicesResponse = await getIndividualServices();
+        if (!individualServicesResponse.success) return;
+        if (!individualServicesResponse.data) return;
+        const dataIndividualServices: IndividualServiceResponse[] =
+          individualServicesResponse.data;
+        setIndividualServices(dataIndividualServices);
+        break;
     }
   }, []);
 
@@ -139,6 +164,7 @@ export function ServicesProvider({
       packageServicesData: packageService,
       packageRangesData: packageRange,
       packageData: packages,
+      individualServicesData: individualServices,
       revalidateData,
       setAmountService,
       setAmountRange,
@@ -148,6 +174,7 @@ export function ServicesProvider({
       packageRange,
       packageService,
       packages,
+      individualServices,
       revalidateData,
       setAmountService,
       setAmountRange,

@@ -62,6 +62,33 @@ export const TopNavItem = ({ path, labelText }: Props) => {
           </Link>
         </div>
       )}
+      {labelText === "Clients" && openMenu.app && (
+        <div className="absolute top-14 flex flex-col w-48 bg-white shadow-lg py-2 px-3 gap-2 rounded-xl border border-gray-100 z-50">
+          <Link href="/crm/clients/quotes">
+            <span
+              className={`block p-2 rounded-md ${
+                currentPath === "/crm/clients/quotes"
+                  ? "text-blue-600 font-bold bg-blue-50"
+                  : "text-gray-500 hover:text-blue-600 hover:bg-gray-50"
+              }`}
+            >
+              Quotes
+            </span>
+          </Link>
+
+          {/*<Link href="/crm/app/services">
+            <span
+              className={`block p-2 rounded-md ${
+                currentPath === "/crm/app/services"
+                  ? "text-blue-600 font-bold bg-blue-50"
+                  : "text-gray-500 hover:text-blue-600 hover:bg-gray-50"
+              }`}
+            >
+              Services
+            </span>
+          </Link>*/}
+        </div>
+      )}
     </li>
   );
 };

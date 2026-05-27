@@ -1,6 +1,11 @@
 "use client";
 
 import { BiSearch } from "react-icons/bi";
+import { CreateIndividualServiceModal } from "./modal/CreateIndividualServiceModal";
+import { useEffect, useState } from "react";
+import { IndividualServiceResponse } from "@/interfaces";
+import { useServices } from "@/context/ServicesProvider";
+import { ItemIndividualService } from "./item/ItemIndividualService";
 
 interface Props {
   name: string;
@@ -9,6 +14,24 @@ interface Props {
 }
 
 export const IndividualServiceTable = ({ name, headers }: Props) => {
+  const [open, setOpen] = useState(false);
+  const [service, setService] = useState({
+    serviceId: "",
+    initialPrice: "",
+  });
+
+  const [dataList, setDataList] = useState<IndividualServiceResponse[]>();
+
+  const { individualServicesData } = useServices();
+
+  useEffect(() => {
+    setDataList(individualServicesData);
+  }, [individualServicesData]);
+
+  const openCreate = (value: boolean) => {
+    setOpen(value);
+  };
+
   return (
     <>
       <div className="relative overflow-x-auto shadow-sm sm:rounded-lg w-full">
@@ -17,7 +40,7 @@ export const IndividualServiceTable = ({ name, headers }: Props) => {
           <button
             className="block bg-[#0841D9] mr-10 px-5 py-2 text-white font-bold rounded-lg cursor-pointer hover:brightness-110 focus:ring-2 focus:ring-blue-300"
             type="button"
-            onClick={() => {}}
+            onClick={() => openCreate(true)}
           >
             {`+ Add `}
           </button>
@@ -49,17 +72,15 @@ export const IndividualServiceTable = ({ name, headers }: Props) => {
             </tr>
           </thead>
           <tbody>
-            {/*dataList &&
-              dataList.map((admin) => (
-                <TableItem
-                  key={admin.id}
-                  user={admin}
-                  setOpenConfirm={handleOpenModalConfirm}
-                  setOpenEdit={handleOpenModalEdit}
-                  setOpenChangePass={handleOpenModalChangePassword}
-                  setTargetId={setTargetId}
+            {dataList &&
+              dataList.map((service) => (
+                <ItemIndividualService
+                  key={service.id}
+                  id={service.id}
+                  initialPrice={service.initialPrice}
+                  name={service.service.name}
                 />
-              ))*/}
+              ))}
           </tbody>
         </table>
         {/*<nav className="flex items-center flex-column flex-wrap md:flex-row justify-between pt-4" aria-label="Table navigation">
@@ -89,6 +110,12 @@ export const IndividualServiceTable = ({ name, headers }: Props) => {
             </ul>
           </nav>*/}
       </div>
+      <CreateIndividualServiceModal
+        open={open}
+        setOpen={openCreate}
+        service={service}
+        setService={setService}
+      />
     </>
   );
 };

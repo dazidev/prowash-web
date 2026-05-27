@@ -1,6 +1,6 @@
 "use client";
 
-import { Contact, User } from "@/interfaces";
+import { Contact, PackageOrderQuote, User } from "@/interfaces";
 import { TableItem } from "./TableItem";
 import { BiSearch } from "react-icons/bi";
 import { useEffect, useState } from "react";
@@ -17,6 +17,8 @@ import { AdminForm } from "@/infrastructure";
 import { ContactViewModal } from "../modal/ContactViewModal";
 import { deleteContact } from "@/actions";
 import { useRouter } from "next/navigation";
+import { QuoteViewModal } from "../modal/QuoteViewModal";
+import { useTableQuotes } from "./hooks/useTableQuotes";
 
 interface AdminTableProps {
   name: "Administrators";
@@ -30,13 +32,26 @@ interface ContactTableProps {
   data?: Contact[];
 }
 
-type Props = AdminTableProps | ContactTableProps;
+interface QuoteTableProps {
+  name: "Quotes";
+  headers: string[];
+  data?: PackageOrderQuote[];
+}
+
+type Props = AdminTableProps | ContactTableProps | QuoteTableProps;
 
 export const Table = (props: Props) => {
   const { name, headers } = props;
+  const {
+    open: openViewQuote,
+    setOpen: setOpenViewQuote,
+    handleOpen: handleOpenViewQuote,
+  } = useTableQuotes();
 
   const [search, setSearch] = useState("");
-  const [dataList, setDataList] = useState<User[] | Contact[]>();
+  const [dataList, setDataList] = useState<
+    User[] | Contact[] | PackageOrderQuote[]
+  >();
 
   const [openModal, setOpenModal] = useState({
     create: false,
@@ -57,6 +72,11 @@ export const Table = (props: Props) => {
   const selectedContact =
     props.name === "Contacts"
       ? props.data?.find((contact) => contact.id === targetId)
+      : undefined;
+
+  const selectedQuote =
+    props.name === "Quotes"
+      ? props.data?.find((quote) => quote.id === targetId)
       : undefined;
 
   useEffect(() => {
@@ -261,7 +281,11 @@ export const Table = (props: Props) => {
                 setOpenEdit={handleOpenModalEdit}
                 setOpenChangePass={handleOpenModalChangePassword}
                 setTargetId={setTargetId}
-                setOpenViewContact={handleOpenModalViewContact}
+                setOpenView={
+                  name === "Contacts"
+                    ? handleOpenModalViewContact
+                    : handleOpenViewQuote
+                }
               />
             ))}
           </tbody>
@@ -301,6 +325,17 @@ export const Table = (props: Props) => {
             return true;
           }}
           value={selectedContact}
+        />
+      )}
+
+      {name === "Quotes" && selectedQuote && (
+        <QuoteViewModal
+          open={openViewQuote}
+          setOpen={setOpenViewQuote}
+          handleAction={function (): Promise<boolean> {
+            throw new Error("Function not implemented.");
+          }}
+          value={selectedQuote}
         />
       )}
 

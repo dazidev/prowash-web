@@ -1,10 +1,10 @@
 "use client";
 
 import { DefaultButton } from "@/components/common/button/DefaultButton";
-import { SetStateAction, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { BiSearch } from "react-icons/bi";
-import { ManageServicesModal } from "./ManageServicesModal";
-import { CreatePackageModal } from "./CreatePackageModal";
+import { ManageServicesModal } from "./modal/ManageServicesModal";
+import { CreatePackageModal } from "./modal/CreatePackageModal";
 import { useServices } from "@/context/ServicesProvider";
 import { PackageResponse } from "@/infrastructure";
 import { PackageItem } from "./PackageItem";
@@ -61,7 +61,7 @@ export const PackagesTable = ({ name, headers }: Props) => {
 
   return (
     <>
-      <div className="relative overflow-x-auto shadow-sm sm:rounded-lg w-full">
+      <div className="relative overflow-x-auto shadow-sm sm:rounded-lg w-full h-auto">
         <div className="flex flex-row w-full h-20 px-10 items-center justify-between bg-white border-b-2 border-gray-200">
           <span className="text-xl text-black font-bold">{`${name} List`}</span>
           <div className="flex flex-row gap-5">

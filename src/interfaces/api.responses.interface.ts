@@ -41,3 +41,56 @@ export interface Review {
   comment: string;
   createdAt: string;
 }
+
+export type ServiceInPackageOrder = {
+  name: string;
+  quantity: number;
+};
+
+type PackageOrderPurchaseStatus =
+  | "PENDING_REVIEW"
+  | "ASSIGNED_APPOINTMENT"
+  | "QUOTED"
+  | "PAID"
+  | "CANCELLED";
+
+export interface PackageOrderQuote {
+  id: string;
+  name: string;
+  initialPrice: number;
+  finalPrice: number | null;
+  range: number;
+  purchaseStatus: PackageOrderPurchaseStatus;
+  services: ServiceInPackageOrder[];
+  createdAt: string;
+  updatedAt: string;
+  user: {
+    id: string;
+    name: string;
+    lastname: string;
+    email: string;
+    phoneNumber: string | null;
+  };
+  userHouse: {
+    id: string;
+    name: string;
+    street: string;
+    complementStreet: string | null;
+    city: string;
+    state: string;
+    zipcode: string;
+  };
+}
+
+export interface IndividualService {
+  serviceId: string;
+  initialPrice: string;
+}
+
+export interface IndividualServiceResponse {
+  id: string;
+  initialPrice: number;
+  service: {
+    name: string;
+  };
+}
