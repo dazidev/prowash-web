@@ -1,7 +1,16 @@
 "use server";
 
 import { serverApi } from "@/infrastructure/lib/api/server-api";
-import { ActionResponse, API, PublicPackage, Review } from "@/interfaces";
+import {
+  ActionResponse,
+  API,
+  ApiError,
+  CreateWebQuotePayload,
+  PublicPackage,
+  Review,
+  WebQuoteCreated,
+} from "@/interfaces";
+import { isAxiosError } from "axios";
 
 interface FormContact {
   name: string;
@@ -113,5 +122,67 @@ export async function getPublicPackages(): Promise<PublicPackage[]> {
   } catch (error: unknown) {
     console.log(error);
     return [];
+  }
+}
+
+export async function sendWebQuote(
+  form: CreateWebQuotePayload,
+): Promise<ActionResponse<WebQuoteCreated>> {
+  const fallbackMessage =
+    "Unable to send your quote request. Please try again.";
+
+  try {
+    const payload: CreateWebQuotePayload = {
+      name: form.name.trim(),
+      lastname: form.lastname?.trim() || undefined,
+      email: form.email.trim(),
+      phone: form.phone.trim(),
+      zipcode: form.zipcode?.trim() || undefined,
+      comments: form.comments.trim(),
+      packageId: form.packageId,
+      packagePriceId: form.packagePriceId,
+    };
+
+    const response = await serverApi.post<WebQuoteCreated>(
+      "/public/web-quotes",
+      payload,
+    );
+
+    return {
+      success: true,
+      message:
+        "Thank you! We have received your quote request. We will contact you shortly.",
+      data: response.data,
+    };
+  } catch (error: unknown) {
+    if (isAxiosError<ApiError>(error) && error.response) {
+      const message = error.response.data?.message;
+
+      if (typeof message === "string" && message.trim()) {
+        return {
+          success: false,
+          message,
+        };
+      }
+
+      if (Array.isArray(message)) {
+        const messages = message.filter(
+          (item): item is string =>
+            typeof item === "string" && item.trim().length > 0,
+        );
+
+        if (messages.length > 0) {
+          return {
+            success: false,
+            message: messages.join(" "),
+          };
+        }
+      }
+    }
+
+    return {
+      success: false,
+      message: fallbackMessage,
+    };
   }
 }

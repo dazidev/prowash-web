@@ -2,6 +2,7 @@
 import { PublicPackage } from "@/interfaces";
 import { useState } from "react";
 import { IoCheckmarkCircleOutline } from "react-icons/io5";
+import { PackageQuoteSelection, QuoteRequestModal } from "./QuoteRequestModal";
 
 interface Props {
   packages: PublicPackage[];
@@ -15,10 +16,28 @@ const PackageCard = ({ packageItem }: PackageCardProps) => {
   const [selectedPriceId, setSelectedPriceId] = useState(
     packageItem.prices[0]?.id ?? "",
   );
+  const [quoteSelection, setQuoteSelection] =
+    useState<PackageQuoteSelection | null>(null);
 
   const selectedPrice =
     packageItem.prices.find((price) => price.id === selectedPriceId) ??
     packageItem.prices[0];
+
+  const handleRequestQuote = () => {
+    if (!selectedPrice) return;
+
+    setQuoteSelection({
+      packageId: packageItem.id,
+      packagePriceId: selectedPrice.id,
+      packageName: packageItem.name,
+      price: selectedPrice.price,
+      rangeName: selectedPrice.name,
+      rangeUnit: selectedPrice.unit,
+      services: packageItem.services.map((service) => ({
+        ...service,
+      })),
+    });
+  };
 
   return (
     <article className="flex h-full flex-col overflow-hidden ">
@@ -100,17 +119,26 @@ const PackageCard = ({ packageItem }: PackageCardProps) => {
           * All prices shown are subject to change based on the final quote.
         </p>
 
-        <a
-          href="#contactUs"
+        <button
+          type="button"
+          disabled={!selectedPrice}
+          onClick={handleRequestQuote}
           className="
             mt-4 rounded-xl bg-sgreen px-5 py-3
             text-center text-xl font-bold text-black
             transition-transform hover:scale-[1.02] active:scale-[0.98]
+            disabled:cursor-not-allowed disabled:opacity-50
           "
         >
           Get a quote
-        </a>
+        </button>
       </div>
+      {quoteSelection && (
+        <QuoteRequestModal
+          selection={quoteSelection}
+          onClose={() => setQuoteSelection(null)}
+        />
+      )}
     </article>
   );
 };

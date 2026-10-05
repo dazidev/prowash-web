@@ -115,3 +115,22 @@ export interface PublicPackage {
   services: PublicPackageService[];
   prices: PublicPackagePrice[];
 }
+
+export type WebQuoteRequestStatus = "PENDING_REVIEW" | "ATTENDED" | "CANCELLED";
+
+export interface CreateWebQuotePayload {
+  name: string;
+  lastname?: string;
+  email: string;
+  phone: string;
+  zipcode?: string;
+  comments: string;
+  packageId: string;
+  packagePriceId: string;
+}
+
+export interface WebQuoteCreated {
+  id: string;
+  status: WebQuoteRequestStatus;
+  createdAt: string;
+}
