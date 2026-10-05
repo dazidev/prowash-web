@@ -65,6 +65,16 @@ export const TopNavPublic = () => {
             <li>
               <button
                 type="button"
+                onClick={() => scrollToSection("packages")}
+                className="hover:scale-105 active:scale-105 active:text-pgreen transition-transform cursor-pointer"
+              >
+                Packages
+              </button>
+            </li>
+
+            <li>
+              <button
+                type="button"
                 onClick={() => scrollToSection("coverage")}
                 className="hover:scale-105 active:scale-105 active:text-pgreen transition-transform cursor-pointer"
               >
@@ -124,6 +134,16 @@ export const TopNavPublic = () => {
                   className="active:scale-105 active:text-pgreen transition-transform"
                 >
                   Services
+                </button>
+              </li>
+
+              <li>
+                <button
+                  type="button"
+                  onClick={() => scrollToSection("packages")}
+                  className="hover:scale-105 active:scale-105 active:text-pgreen transition-transform cursor-pointer"
+                >
+                  Packages
                 </button>
               </li>
 
