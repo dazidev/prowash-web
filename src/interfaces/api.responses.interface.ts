@@ -94,3 +94,24 @@ export interface IndividualServiceResponse {
     name: string;
   };
 }
+
+export interface PublicPackageService {
+  id: string;
+  serviceId: string;
+  name: string;
+  amount: number;
+}
+
+export interface PublicPackagePrice {
+  id: string;
+  price: number;
+  name: string;
+  unit: string;
+}
+
+export interface PublicPackage {
+  id: string;
+  name: string;
+  services: PublicPackageService[];
+  prices: PublicPackagePrice[];
+}

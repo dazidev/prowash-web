@@ -3,12 +3,13 @@
 import Image from "next/image";
 import { PrincipalBanner } from "@/components/public/PrincipalBanner";
 import { CarouselReviews } from "@/components/common/carousel/CarouselReviews";
-import { getReviews } from "@/actions";
+import { getPublicPackages, getReviews } from "@/actions";
 
 import { IoLogoInstagram, IoLogoFacebook } from "react-icons/io5";
 import CarouselServices from "@/components/common/carousel/CarouselServices";
 import { FormContact } from "@/components";
 import Link from "next/link";
+import { PackagesSection } from "@/components/public/PackagesSection";
 
 export default async function PublicPage() {
   const cities = [
@@ -26,7 +27,10 @@ export default async function PublicPage() {
     "Easly",
   ];
 
-  const responseReviews = await getReviews();
+  const [responseReviews, packages] = await Promise.all([
+    getReviews(),
+    getPublicPackages(),
+  ]);
 
   const reviews = responseReviews ? responseReviews : undefined;
 
@@ -70,6 +74,7 @@ export default async function PublicPage() {
           <h1>AND MORE: PAINTING, REMODELING, GARDEN DESIGN</h1>
         </div>
       </section>
+      <PackagesSection packages={packages} />
       <section id="coverage" className="flex justify-center w-full">
         <div className="flex flex-col xl:flex-row items-center w-full xl:w-[1350px] min-h-screen justify-between pt-30 pb-10 px-10">
           <div className="flex flex-col justify-between w-full xl:w-7/15 h-auto xl:h-full bg-sgreen px-10 py-2 xl:py-15 max-h-[900px]">

@@ -1,7 +1,7 @@
 "use server";
 
 import { serverApi } from "@/infrastructure/lib/api/server-api";
-import { ActionResponse, API, Review } from "@/interfaces";
+import { ActionResponse, API, PublicPackage, Review } from "@/interfaces";
 
 interface FormContact {
   name: string;
@@ -90,5 +90,28 @@ export async function deleteContact(
       success: false,
       message: "There are an error deleting the contact",
     };
+  }
+}
+
+export async function getPublicPackages(): Promise<PublicPackage[]> {
+  try {
+    const response = await fetch(`${API}/api/public/packages`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      cache: "no-store",
+    });
+
+    if (!response.ok) {
+      return [];
+    }
+
+    const packages: PublicPackage[] = await response.json();
+
+    return packages;
+  } catch (error: unknown) {
+    console.log(error);
+    return [];
   }
 }
