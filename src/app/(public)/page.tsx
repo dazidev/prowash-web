@@ -151,7 +151,7 @@ export default async function PublicPage() {
           </div>
         </div>
 
-        <footer className="flex flex-col md:flex-row w-full justify-center md:justify-between items-center px-2 xl:px-5 py-5 text-black text-xl bg-pgreen">
+        <footer className="flex flex-col md:flex-row w-full justify-center md:justify-between items-center px-2 xl:px-5 py-5 text-black text-xl bg-sgreen">
           <span>&copy; 2023 - 2026 Pro Wash 365. All rights reserved.</span>
 
           <div className="hidden md:flex text-2xl font-bold gap-5">

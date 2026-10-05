@@ -112,10 +112,7 @@ export const TopNavPublic = () => {
             aria-label={openMenu ? "Close menu" : "Open menu"}
           >
             {openMenu ? (
-              <IoCloseSharp
-                size={50}
-                className={`${scrolled ? "text-black" : "text-white"}`}
-              />
+              <IoCloseSharp size={50} className={"text-white"} />
             ) : (
               <IoMenu size={50} />
             )}
@@ -124,7 +121,7 @@ export const TopNavPublic = () => {
 
         {openMenu && (
           <div
-            className={`absolute top-20 left-0 w-full h-screen ${scrolled ? "bg-sgreen/80 backdrop-blur-md shadow-lg text-black" : "bg-pblue/80 text-white"} shadow-lg sm:hidden`}
+            className={`absolute top-20 left-0 w-full h-screen text-white bg-pblue backdrop-blur-md shadow-lg sm:hidden`}
           >
             <ul className="flex flex-col items-center gap-10 pt-10 py-8 text-4xl font-bold">
               <li>

@@ -104,7 +104,7 @@ export const FormContact = () => {
 
       <button
         type="submit"
-        className="w-full px-6 py-4 bg-pgreen/95 text-white text-xl font-bold rounded-xl hover:bg-pgreen hover:-translate-y-0.5 hover:shadow-xl hover:shadow-black/20 active:translate-y-0 tracking-wide"
+        className="w-full px-6 py-4 bg-sgreen text-black text-xl font-bold rounded-xl hover:bg-pgreen hover:-translate-y-0.5 hover:shadow-xl hover:shadow-black/20 active:translate-y-0 tracking-wide"
       >
         {loading.status === "loading" ? (
           <Spinner size="w-7 h-7" />
