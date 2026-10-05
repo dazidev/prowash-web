@@ -123,7 +123,7 @@ export const PackagesSection = ({ packages }: Props) => {
   return (
     <section
       id="packages"
-      className="flex w-full justify-center px-4 py-20 md:px-8 xl:py-28"
+      className="flex w-full min-h-screen justify-center items-center px-4 py-20 md:px-8 xl:py-28"
     >
       <div className="flex w-full max-w-[1350px] flex-col gap-12">
         <div className="flex flex-col items-center gap-3 text-center">
