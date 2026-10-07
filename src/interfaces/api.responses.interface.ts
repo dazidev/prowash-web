@@ -134,3 +134,32 @@ export interface WebQuoteCreated {
   status: WebQuoteRequestStatus;
   createdAt: string;
 }
+
+export interface WebQuoteService {
+  serviceId: string;
+  name: string;
+  amount: number;
+}
+
+export interface WebQuoteRequest {
+  id: string;
+
+  name: string;
+  lastname: string | null;
+  email: string;
+  phone: string;
+  zipcode: string | null;
+  comments: string;
+
+  packageId: string;
+  packagePriceId: string;
+  packageName: string;
+  initialPrice: number;
+  rangeName: string;
+  rangeUnit: string;
+  services: WebQuoteService[];
+
+  status: WebQuoteRequestStatus;
+  createdAt: string;
+  updatedAt: string;
+}
