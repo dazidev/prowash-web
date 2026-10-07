@@ -1,370 +1,360 @@
 "use client";
-
-import { changeContactStatus } from "@/actions";
-import { Contact, PackageOrderQuote } from "@/interfaces";
+import { updateUserQuoteStatus } from "@/actions";
+import type {
+  PackageOrderPurchaseStatus,
+  PackageOrderQuote,
+} from "@/interfaces";
 import { useRouter } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
+import type { SubmitEvent } from "react";
 import toast from "react-hot-toast";
+import { IoClose } from "react-icons/io5";
+import { ErrorDialog } from "../../common";
+import { Spinner } from "../../common/loading/Spinner";
+import {
+  appQuoteStatuses,
+  appQuoteStatusStyles,
+} from "../quotes/app-quote-status";
 
 interface Props {
   open: boolean;
   setOpen: (value: boolean) => void;
-  handleAction: () => Promise<boolean>;
   value: PackageOrderQuote;
 }
 
-export const QuoteViewModal = ({
-  open,
-  setOpen,
-  handleAction,
-  value,
-}: Props) => {
-  const [field, setField] = useState<PackageOrderQuote>(value);
+interface DetailsProps {
+  quote: PackageOrderQuote;
+  onClose: () => void;
+}
+
+export const QuoteViewModal = ({ open, setOpen, value }: Props) => {
+  if (!open) return null;
+
+  return (
+    <AppQuoteDetails
+      key={`${value.id}:${value.updatedAt}`}
+      quote={value}
+      onClose={() => setOpen(false)}
+    />
+  );
+};
+
+const AppQuoteDetails = ({ quote, onClose }: DetailsProps) => {
+  const router = useRouter();
+  const titleId = useId();
+  const statusId = useId();
+
+  const dialogRef = useRef<HTMLDialogElement>(null);
+  const submittingRef = useRef(false);
+
+  const [selectedStatus, setSelectedStatus] =
+    useState<PackageOrderPurchaseStatus>(quote.purchaseStatus);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState("");
+
+  const currentStatusLabel = appQuoteStatuses.find(
+    (status) => status.value === quote.purchaseStatus,
+  )?.label;
+
+  const userFields = [
+    ["Name", `${quote.user.name} ${quote.user.lastname}`.trim()],
+    ["Email", quote.user.email],
+    ["Phone", quote.user.phoneNumber || "—"],
+  ] as const;
+
+  const houseFields = [
+    ["Name", quote.userHouse.name],
+    ["Street", quote.userHouse.street],
+    ["Complement Street", quote.userHouse.complementStreet || "—"],
+    ["City", quote.userHouse.city],
+    ["State", quote.userHouse.state],
+    ["ZIP Code", quote.userHouse.zipcode],
+  ] as const;
 
   useEffect(() => {
-    if (value) {
-      setField(value);
-    }
-  }, [value]);
+    const dialog = dialogRef.current;
 
-  const handleChange = (value: string, nameField: string) => {
-    setField((prev) => ({ ...prev, [nameField]: value }));
+    if (!dialog) return;
+
+    const previousOverflow = document.body.style.overflow;
+
+    document.body.style.overflow = "hidden";
+    dialog.showModal();
+
+    return () => {
+      dialog.close();
+      document.body.style.overflow = previousOverflow;
+    };
+  }, []);
+
+  const handleClose = () => {
+    if (submittingRef.current) return;
+    onClose();
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const response = await handleAction();
-    if (!response) return;
-    setOpen(false);
-  };
+  const handleSubmit = async (event: SubmitEvent<HTMLFormElement>) => {
+    event.preventDefault();
 
-  /*const handleAttend = async () => {
-    const res = await changeContactStatus(field.id);
-
-    if (!res.success) {
-      toast.error(res.message!);
+    if (submittingRef.current || selectedStatus === quote.purchaseStatus) {
       return;
     }
 
-    router.refresh();
-    toast.success(res.message!);
-    setOpen(false);
-    return;
-  };*/
+    submittingRef.current = true;
+    setIsSubmitting(true);
+    setError("");
+
+    let saved = false;
+
+    try {
+      const response = await updateUserQuoteStatus(quote.id, selectedStatus);
+
+      if (!response.success) {
+        setError(
+          response.message ?? "Unable to update the app quote request status.",
+        );
+        return;
+      }
+
+      toast.success(
+        response.message ?? "App quote request status updated successfully.",
+      );
+
+      saved = true;
+    } catch {
+      setError(
+        "Unable to update the app quote request status. Please try again.",
+      );
+    } finally {
+      submittingRef.current = false;
+      setIsSubmitting(false);
+    }
+
+    if (saved) {
+      onClose();
+      router.refresh();
+    }
+  };
 
   return (
-    <>
-      {open && (
-        <div
-          id="crud-modal"
-          tabIndex={-1}
-          className="overflow-y-auto overflow-x-hidden fixed z-50 flex justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full bg-black/50"
-        >
-          <div className="relative p-4 w-full max-w-4xl max-h-full">
-            <div className="relative bg-white rounded-lg shadow-sm">
-              <div className="flex items-start justify-between p-4 md:p-5 border-b rounded-t border-gray-200">
-                <div className="flex flex-col w-auto gap-2">
-                  <h3 className="text-lg font-semibold text-gray-900">
-                    QUOTE INFORMATION
-                  </h3>
-                  <span
-                    className={`self-start h-auto px-2 rounded-lg ${field.purchaseStatus === "PENDING_REVIEW" ? "bg-red-300 text-red-900" : "bg-green-300 text-green-900"}`}
-                  >
-                    {field.purchaseStatus.replace("_", " ")}
-                  </span>
-                  <span
-                    className={`self-start h-auto px-2 rounded-lg bg-yellow-300 text-yellow-900`}
-                  >
-                    {field.purchaseStatus === "PENDING_REVIEW"
-                      ? field.updatedAt.toString().slice(0, 10)
-                      : field.createdAt.toString().slice(0, 10)}
-                  </span>
-                </div>
-                <button
-                  type="button"
-                  className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center "
-                  onClick={() => setOpen(false)}
-                >
-                  <svg
-                    className="w-3 h-3"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 14 14"
-                  >
-                    <path
-                      stroke="currentColor"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
-                    />
-                  </svg>
-                  <span className="sr-only">Close modal</span>
-                </button>
-              </div>
-              <form className="p-4 md:p-5" onSubmit={handleSubmit}>
-                <h1 className="font-bold">User Information:</h1>
-                <div className="flex flex-col gap-2">
-                  <div className="flex gap-2 pb-5">
-                    <div className="flex-1">
-                      <label
-                        htmlFor="name"
-                        className="block mb-2 text-sm font-medium text-gray-900"
-                      >
-                        Name
-                      </label>
-                      <input
-                        type="text"
-                        name="name"
-                        id="name"
-                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 "
-                        placeholder="Name"
-                        readOnly
-                        value={field.user.name}
-                      />
-                    </div>
-                    <div className="flex-1">
-                      <label
-                        htmlFor="lastname"
-                        className="block mb-2 text-sm font-medium text-gray-900"
-                      >
-                        Lastname
-                      </label>
-                      <input
-                        type="text"
-                        name="lastname"
-                        id="lastname"
-                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 "
-                        placeholder="Lastname"
-                        readOnly
-                        value={field.user.lastname}
-                      />
-                    </div>
-                    <div className="flex-2">
-                      <label
-                        htmlFor="email"
-                        className="block mb-2 text-sm font-medium text-gray-900"
-                      >
-                        Email
-                      </label>
-                      <input
-                        type="email"
-                        name="email"
-                        id="email"
-                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 "
-                        placeholder="Email"
-                        readOnly
-                        value={field.user.email}
-                      />
-                    </div>
-                    <div className="flex-1">
-                      <label
-                        htmlFor="phone-number"
-                        className="block mb-2 text-sm font-medium text-gray-900"
-                      >
-                        Phone
-                      </label>
-                      <input
-                        type="number"
-                        name="Phone"
-                        id="phone-number"
-                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 "
-                        placeholder="Phone number"
-                        readOnly
-                        value={`${field.user.phoneNumber}`}
-                      />
-                    </div>
-                  </div>
-                </div>
-                <h1 className="font-bold">House Information:</h1>
-                <div className="flex flex-col gap-2">
-                  <div className="flex gap-2  pb-5">
-                    <div className="flex-1">
-                      <label
-                        htmlFor="house-name"
-                        className="block mb-2 text-sm font-medium text-gray-900"
-                      >
-                        Name
-                      </label>
-                      <input
-                        type="text"
-                        name="name"
-                        id="house-name"
-                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 "
-                        placeholder="Name"
-                        readOnly
-                        value={field.userHouse.name}
-                      />
-                    </div>
-                    <div className="flex-2">
-                      <label
-                        htmlFor="street"
-                        className="block mb-2 text-sm font-medium text-gray-900"
-                      >
-                        Street
-                      </label>
-                      <input
-                        type="text"
-                        name="street"
-                        id="street"
-                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 "
-                        placeholder="Street"
-                        readOnly
-                        value={field.userHouse.street}
-                      />
-                    </div>
-                    <div className="flex-2">
-                      <label
-                        htmlFor="complementStreet"
-                        className="block mb-2 text-sm font-medium text-gray-900"
-                      >
-                        Complement Street
-                      </label>
-                      <input
-                        type="text"
-                        name="Complement Street"
-                        id="complementStreet"
-                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 "
-                        placeholder="Complement Street"
-                        readOnly
-                        value={`${field.userHouse.complementStreet}`}
-                      />
-                    </div>
-                    <div className="flex-1">
-                      <label
-                        htmlFor="city"
-                        className="block mb-2 text-sm font-medium text-gray-900"
-                      >
-                        City
-                      </label>
-                      <input
-                        type="text"
-                        name="City"
-                        id="city"
-                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 "
-                        placeholder="City"
-                        readOnly
-                        value={`${field.userHouse.city}`}
-                      />
-                    </div>
-                    <div className="flex-1">
-                      <label
-                        htmlFor="state"
-                        className="block mb-2 text-sm font-medium text-gray-900"
-                      >
-                        State
-                      </label>
-                      <input
-                        type="text"
-                        name="State"
-                        id="state"
-                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 "
-                        placeholder="State"
-                        readOnly
-                        value={`${field.userHouse.state}`}
-                      />
-                    </div>
-                    <div className="flex-1">
-                      <label
-                        htmlFor="zipcode"
-                        className="block mb-2 text-sm font-medium text-gray-900"
-                      >
-                        Zip Code
-                      </label>
-                      <input
-                        type="text"
-                        name="Zip Code"
-                        id="zipcode"
-                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 "
-                        placeholder="Zip Code"
-                        readOnly
-                        value={`${field.userHouse.zipcode}`}
-                      />
-                    </div>
-                  </div>
-                </div>
-                <h1 className="font-bold">Package Information:</h1>
-                <div className="flex flex-col gap-2">
-                  <div className="flex gap-2  pb-5">
-                    <div className="flex-1">
-                      <label
-                        htmlFor="package-name"
-                        className="block mb-2 text-sm font-medium text-gray-900"
-                      >
-                        Name
-                      </label>
-                      <input
-                        type="text"
-                        name="Package Name"
-                        id="package-name"
-                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 "
-                        placeholder="Package Name"
-                        readOnly
-                        value={field.name}
-                      />
-                    </div>
-                    <div className="flex-1">
-                      <label
-                        htmlFor="initialPrice"
-                        className="block mb-2 text-sm font-medium text-gray-900"
-                      >
-                        Initial Price
-                      </label>
-                      <input
-                        type="text"
-                        name="Initial Price"
-                        id="initialPrice"
-                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 "
-                        placeholder="Initial Price"
-                        readOnly
-                        value={field.initialPrice}
-                      />
-                    </div>
-                    <div className="flex-1">
-                      <label
-                        htmlFor="range"
-                        className="block mb-2 text-sm font-medium text-gray-900"
-                      >
-                        Range
-                      </label>
-                      <input
-                        type="text"
-                        name="Range"
-                        id="range"
-                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 "
-                        placeholder="Range"
-                        readOnly
-                        value={`${field.range} ft2`}
-                      />
-                    </div>
-                  </div>
-                  <h1 className="pl-4">Services included:</h1>
-                  {field.services.map((service) => (
-                    <div
-                      key={service.name}
-                      className="flex flex-row pl-5 justify-between w-70"
-                    >
-                      <div>{service.name}</div>
-                      <div>({service.quantity}) times / year</div>
-                    </div>
-                  ))}
-                </div>
-                {field.purchaseStatus === "PENDING_REVIEW" && (
-                  <div className="flex justify-end mt-10">
-                    <button
-                      type="button"
-                      onClick={() => {}}
-                      className="text-white inline-flex items-end bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
-                    >
-                      Attend
-                    </button>
-                  </div>
-                )}
-              </form>
-            </div>
+    <dialog
+      ref={dialogRef}
+      aria-labelledby={titleId}
+      onCancel={(event) => {
+        event.preventDefault();
+        handleClose();
+      }}
+      className="
+        m-auto max-h-[90dvh] w-[92vw] max-w-3xl
+        overflow-y-auto rounded-2xl bg-white p-0
+        text-gray-900 shadow-2xl backdrop:bg-black/60
+      "
+    >
+      <div className="flex items-start justify-between gap-4 border-b border-gray-200 p-5 sm:p-6">
+        <div>
+          <h2 id={titleId} className="text-xl font-bold">
+            APP QUOTE INFORMATION
+          </h2>
+
+          <div className="mt-3 flex flex-wrap gap-2 text-sm">
+            <span
+              className={`
+                rounded-full px-3 py-1
+                ${appQuoteStatusStyles[quote.purchaseStatus]}
+              `}
+            >
+              {currentStatusLabel}
+            </span>
+
+            <span className="rounded-full bg-gray-100 px-3 py-1 text-gray-600">
+              Requested: {quote.createdAt.slice(0, 10)}
+            </span>
+
+            <span className="rounded-full bg-gray-100 px-3 py-1 text-gray-600">
+              Updated: {quote.updatedAt.slice(0, 10)}
+            </span>
           </div>
         </div>
-      )}
-    </>
+
+        <button
+          autoFocus
+          type="button"
+          aria-label="Close app quote details"
+          disabled={isSubmitting}
+          onClick={handleClose}
+          className="
+            shrink-0 rounded-lg p-2 text-gray-500
+            hover:bg-gray-100 hover:text-black
+            disabled:opacity-50
+          "
+        >
+          <IoClose aria-hidden="true" size={24} />
+        </button>
+      </div>
+
+      <div className="flex flex-col gap-6 p-5 sm:p-6">
+        <section>
+          <h3 className="mb-4 font-bold">USER INFORMATION</h3>
+
+          <dl className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            {userFields.map(([label, value]) => (
+              <div key={label} className="min-w-0 rounded-lg bg-gray-50 p-3">
+                <dt className="mb-1 text-sm text-gray-500">{label}</dt>
+
+                <dd className="break-words font-medium">{value}</dd>
+              </div>
+            ))}
+          </dl>
+        </section>
+
+        <section>
+          <h3 className="mb-4 font-bold">HOUSE INFORMATION</h3>
+
+          <dl className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {houseFields.map(([label, value]) => (
+              <div key={label} className="min-w-0 rounded-lg bg-gray-50 p-3">
+                <dt className="mb-1 text-sm text-gray-500">{label}</dt>
+
+                <dd className="break-words font-medium">{value}</dd>
+              </div>
+            ))}
+          </dl>
+        </section>
+
+        <section className="rounded-xl border border-gray-200 p-4">
+          <h3 className="mb-4 font-bold">PACKAGE INTEREST</h3>
+
+          <p className="break-words text-2xl font-extrabold">{quote.name}</p>
+
+          <p className="mt-2 text-gray-600">
+            Up to {quote.range.toLocaleString("en-US")} ft²
+          </p>
+
+          <dl className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div>
+              <dt className="mb-1 text-sm text-gray-500">Initial price</dt>
+
+              <dd className="text-xl font-semibold">
+                USD {quote.initialPrice.toLocaleString("en-US")}
+                <span className="ml-2 text-base font-normal text-gray-500">
+                  / year
+                </span>
+              </dd>
+            </div>
+
+            <div>
+              <dt className="mb-1 text-sm text-gray-500">Final price</dt>
+
+              <dd className="text-xl font-semibold">
+                {quote.finalPrice === null ? (
+                  <span className="text-base font-normal text-gray-500">
+                    Not set
+                  </span>
+                ) : (
+                  <>
+                    USD {quote.finalPrice.toLocaleString("en-US")}
+                    <span className="ml-2 text-base font-normal text-gray-500">
+                      / year
+                    </span>
+                  </>
+                )}
+              </dd>
+            </div>
+          </dl>
+
+          <h4 className="mb-3 mt-5 text-sm font-semibold text-gray-500">
+            SERVICES INCLUDED
+          </h4>
+
+          <ul className="flex flex-col gap-3">
+            {quote.services.map((service) => (
+              <li
+                key={service.name}
+                className="flex items-start justify-between gap-4"
+              >
+                <span className="break-words">{service.name}</span>
+
+                <span className="shrink-0 rounded-full bg-sgreen px-3 py-1 text-sm font-semibold">
+                  {service.quantity} x year
+                </span>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        <form
+          onSubmit={handleSubmit}
+          aria-busy={isSubmitting}
+          className="border-t border-gray-200 pt-5"
+        >
+          <fieldset disabled={isSubmitting} className="flex flex-col gap-4">
+            <legend className="mb-3 font-bold">REQUEST STATUS</legend>
+
+            <label htmlFor={statusId} className="sr-only">
+              App quote request status
+            </label>
+
+            <select
+              id={statusId}
+              value={selectedStatus}
+              onChange={(event) => {
+                setSelectedStatus(
+                  event.target.value as PackageOrderPurchaseStatus,
+                );
+                setError("");
+              }}
+              className="
+                rounded-lg border border-gray-300 bg-white
+                px-4 py-3 outline-none
+                focus:ring-2 focus:ring-blue-500
+              "
+            >
+              {appQuoteStatuses.map((status) => (
+                <option key={status.value} value={status.value}>
+                  {status.label}
+                </option>
+              ))}
+            </select>
+
+            <div className="flex flex-wrap justify-end gap-3">
+              <button
+                type="button"
+                onClick={handleClose}
+                className="rounded-lg border border-gray-300 px-5 py-3 hover:bg-gray-50"
+              >
+                Close
+              </button>
+
+              <button
+                type="submit"
+                disabled={
+                  isSubmitting || selectedStatus === quote.purchaseStatus
+                }
+                className="
+                  flex items-center justify-center gap-2
+                  rounded-lg bg-pblue px-5 py-3
+                  font-semibold text-white hover:brightness-110
+                  disabled:cursor-not-allowed disabled:opacity-50
+                "
+              >
+                {isSubmitting ? (
+                  <>
+                    <Spinner size="w-5 h-5" />
+                    <span>Saving...</span>
+                  </>
+                ) : (
+                  "Save status"
+                )}
+              </button>
+            </div>
+          </fieldset>
+
+          {error && (
+            <div role="alert" className="mt-4">
+              <ErrorDialog error={error} />
+            </div>
+          )}
+        </form>
+      </div>
+    </dialog>
   );
 };

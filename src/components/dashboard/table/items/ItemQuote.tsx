@@ -1,4 +1,8 @@
-import { PackageOrderQuote } from "@/interfaces";
+import type { PackageOrderQuote } from "@/interfaces";
+import {
+  appQuoteStatuses,
+  appQuoteStatusStyles,
+} from "../../quotes/app-quote-status";
 
 interface Props {
   quotes: PackageOrderQuote;
@@ -7,32 +11,40 @@ interface Props {
 export const ItemQuote = ({ quotes }: Props) => {
   const { name, user, purchaseStatus, createdAt } = quotes;
 
+  const statusLabel = appQuoteStatuses.find(
+    (status) => status.value === purchaseStatus,
+  )?.label;
+
   return (
     <>
       <th
         scope="row"
-        className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap "
+        className="whitespace-nowrap px-6 py-4 font-medium text-gray-900"
       >
         <span className="font-semibold text-slate-900">{name}</span>
       </th>
+
       <td className="px-6 py-4">
-        <span className="text-black"> {user.email} </span>
+        <span className="text-black">{user.email}</span>
       </td>
+
       <td className="px-6 py-4">
-        <span className="text-black"> {user.phoneNumber} </span>
+        <span className="text-black">{user.phoneNumber || "—"}</span>
       </td>
-      <td className="px-6 py-4">
-        <span className="text-black">
-          {" "}
-          {createdAt.toString().slice(0, 10)}{" "}
-        </span>
+
+      <td className="whitespace-nowrap px-6 py-4">
+        <span className="text-black">{createdAt.slice(0, 10)}</span>
       </td>
+
       <td className="px-6 py-4">
         <span
-          className={`inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold
-          ${purchaseStatus === "PENDING_REVIEW" ? "bg-red-300 text-red-900" : "bg-green-300 text-green-900"} `}
+          className={`
+            inline-flex items-center whitespace-nowrap
+            rounded-full px-3 py-1.5 text-xs font-semibold
+            ${appQuoteStatusStyles[purchaseStatus]}
+          `}
         >
-          {purchaseStatus.replace("_", " ")}
+          {statusLabel}
         </span>
       </td>
     </>

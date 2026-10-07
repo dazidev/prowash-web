@@ -3,18 +3,55 @@ import { serverApi } from "@/infrastructure/lib/api/server-api";
 import {
   ActionResponse,
   ApiError,
+  PackageOrderPurchaseStatus,
+  PackageOrderQuote,
+  PackageOrderStatusUpdated,
   WebQuoteRequest,
   WebQuoteRequestStatus,
 } from "@/interfaces";
 import { isAxiosError } from "axios";
 
-export async function getUserQuotes() {
+export async function getUserQuotes(
+  purchaseStatus?: PackageOrderPurchaseStatus,
+): Promise<PackageOrderQuote[]> {
   try {
-    const res = await serverApi.get("/memberships/quotes");
-    return res?.data ?? [];
-  } catch (error) {
+    const response = await serverApi.get<PackageOrderQuote[]>(
+      "/memberships/quotes",
+      {
+        params: { purchaseStatus },
+      },
+    );
+
+    return response.data;
+  } catch (error: unknown) {
     console.log(error);
     return [];
+  }
+}
+
+export async function updateUserQuoteStatus(
+  id: string,
+  purchaseStatus: PackageOrderPurchaseStatus,
+): Promise<ActionResponse<PackageOrderStatusUpdated>> {
+  try {
+    const response = await serverApi.patch<PackageOrderStatusUpdated>(
+      `/memberships/quotes/${id}/status`,
+      { purchaseStatus },
+    );
+
+    return {
+      success: true,
+      message: "App quote request status updated successfully.",
+      data: response.data,
+    };
+  } catch (error: unknown) {
+    return {
+      success: false,
+      message: getQuoteErrorMessage(
+        error,
+        "Unable to update the app quote request status.",
+      ),
+    };
   }
 }
 
@@ -36,7 +73,7 @@ export async function getWebQuotes(
   } catch (error: unknown) {
     return {
       success: false,
-      message: getWebQuoteErrorMessage(
+      message: getQuoteErrorMessage(
         error,
         "Unable to load website quote requests.",
       ),
@@ -59,10 +96,7 @@ export async function getWebQuote(
   } catch (error: unknown) {
     return {
       success: false,
-      message: getWebQuoteErrorMessage(
-        error,
-        "Unable to load the quote request.",
-      ),
+      message: getQuoteErrorMessage(error, "Unable to load the quote request."),
     };
   }
 }
@@ -85,7 +119,7 @@ export async function updateWebQuoteStatus(
   } catch (error: unknown) {
     return {
       success: false,
-      message: getWebQuoteErrorMessage(
+      message: getQuoteErrorMessage(
         error,
         "Unable to update the quote request status.",
       ),
@@ -93,7 +127,7 @@ export async function updateWebQuoteStatus(
   }
 }
 
-function getWebQuoteErrorMessage(error: unknown, fallback: string): string {
+function getQuoteErrorMessage(error: unknown, fallback: string): string {
   if (isAxiosError<ApiError>(error) && error.response) {
     const message = error.response.data?.message;
 

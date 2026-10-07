@@ -47,7 +47,7 @@ export type ServiceInPackageOrder = {
   quantity: number;
 };
 
-type PackageOrderPurchaseStatus =
+export type PackageOrderPurchaseStatus =
   | "PENDING_REVIEW"
   | "ASSIGNED_APPOINTMENT"
   | "QUOTED"
@@ -81,6 +81,11 @@ export interface PackageOrderQuote {
     zipcode: string;
   };
 }
+
+export type PackageOrderStatusUpdated = Pick<
+  PackageOrderQuote,
+  "id" | "purchaseStatus" | "updatedAt"
+>;
 
 export interface IndividualService {
   serviceId: string;

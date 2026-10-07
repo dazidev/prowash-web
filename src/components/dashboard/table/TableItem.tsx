@@ -151,10 +151,18 @@ export const TableItem = ({
         <td className="px-6 py-4">
           <div className="flex items-center gap-2">
             <button
-              className="w-8 h-8 rounded-md border border-slate-200 hover:border-blue-600 hover:bg-blue-50 hover:text-blue-600 text-slate-500 flex items-center justify-center transition-all"
+              type="button"
+              aria-label="View app quote details"
               onClick={handleViewContact}
+              className="
+          flex h-8 w-8 items-center justify-center
+          rounded-md border border-slate-200 text-slate-500
+          transition-all hover:border-blue-600
+          hover:bg-blue-50 hover:text-blue-600
+        "
             >
               <svg
+                aria-hidden="true"
                 width="16"
                 height="16"
                 viewBox="0 0 16 16"
@@ -166,22 +174,6 @@ export const TableItem = ({
               >
                 <path d="M1.5 8s2.5-4 6.5-4 6.5 4 6.5 4-2.5 4-6.5 4-6.5-4-6.5-4z" />
                 <circle cx="8" cy="8" r="2" />
-              </svg>
-            </button>
-
-            <button
-              className="w-8 h-8 rounded-md border border-slate-200 hover:border-red-500 hover:bg-red-50 hover:text-red-600 text-slate-500 flex items-center justify-center transition-all"
-              onClick={handleClickDelete}
-            >
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 16 16"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-              >
-                <path d="M2 4h12M5 4V3a1 1 0 011-1h4a1 1 0 011 1v1M13 4v9a1 1 0 01-1 1H4a1 1 0 01-1-1V4" />
               </svg>
             </button>
           </div>

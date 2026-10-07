@@ -19,6 +19,8 @@ import { deleteContact } from "@/actions";
 import { useRouter } from "next/navigation";
 import { QuoteViewModal } from "../modal/QuoteViewModal";
 import { useTableQuotes } from "./hooks/useTableQuotes";
+import type { PackageOrderPurchaseStatus } from "@/interfaces";
+import { appQuoteStatuses } from "../quotes/app-quote-status";
 
 interface AdminTableProps {
   name: "Administrators";
@@ -49,6 +51,9 @@ export const Table = (props: Props) => {
   } = useTableQuotes();
 
   const [search, setSearch] = useState("");
+  const [quoteStatusFilter, setQuoteStatusFilter] = useState<
+    "ALL" | PackageOrderPurchaseStatus
+  >("ALL");
   const [dataList, setDataList] = useState<
     User[] | Contact[] | PackageOrderQuote[]
   >();
@@ -78,6 +83,34 @@ export const Table = (props: Props) => {
     props.name === "Quotes"
       ? props.data?.find((quote) => quote.id === targetId)
       : undefined;
+
+  const filteredQuotes =
+    props.name === "Quotes"
+      ? (props.data ?? []).filter((quote) => {
+          const matchesStatus =
+            quoteStatusFilter === "ALL" ||
+            quote.purchaseStatus === quoteStatusFilter;
+
+          const searchableText = [
+            quote.name,
+            quote.user.name,
+            quote.user.lastname,
+            quote.user.email,
+            quote.user.phoneNumber ?? "",
+            quote.userHouse.name,
+            quote.userHouse.zipcode,
+          ]
+            .join(" ")
+            .toLowerCase();
+
+          return (
+            matchesStatus &&
+            searchableText.includes(search.trim().toLowerCase())
+          );
+        })
+      : [];
+
+  const visibleData = props.name === "Quotes" ? filteredQuotes : dataList;
 
   useEffect(() => {
     if (props.data) {
@@ -146,6 +179,7 @@ export const Table = (props: Props) => {
   };
 
   const handleRemove = async () => {
+    if (props.name === "Quotes") return;
     const remove =
       props.name === "Contacts"
         ? await deleteContact(targetId)
@@ -244,21 +278,57 @@ export const Table = (props: Props) => {
           )}
         </div>
 
-        <div className="px-8 py-6 bg-white">
-          <div className="relative">
+        <div className="flex flex-col gap-4 bg-white px-8 py-6 lg:flex-row">
+          <div className="relative flex-1">
             <BiSearch
+              aria-hidden="true"
               className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
               size={16}
             />
 
             <input
               type="text"
-              placeholder="Search by name or email..."
+              aria-label="Search table records"
+              placeholder={
+                name === "Quotes"
+                  ? "Search by package, client, email, phone or ZIP..."
+                  : "Search by name or email..."
+              }
               value={search}
-              onChange={(e) => handleSearch(e.target.value)}
-              className="w-full pl-11 pr-4 py-3 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+              onChange={(event) => handleSearch(event.target.value)}
+              className="
+        w-full rounded-lg border border-slate-200
+        py-3 pl-11 pr-4 text-sm
+        outline-none transition-all
+        focus:border-transparent focus:ring-2 focus:ring-blue-500
+      "
             />
           </div>
+
+          {name === "Quotes" && (
+            <select
+              aria-label="Filter app quotes by status"
+              value={quoteStatusFilter}
+              onChange={(event) =>
+                setQuoteStatusFilter(
+                  event.target.value as "ALL" | PackageOrderPurchaseStatus,
+                )
+              }
+              className="
+                rounded-lg border border-slate-200 bg-white
+                px-4 py-3 text-sm text-black
+                outline-none focus:ring-2 focus:ring-blue-500
+              "
+            >
+              <option value="ALL">All statuses</option>
+
+              {appQuoteStatuses.map((status) => (
+                <option key={status.value} value={status.value}>
+                  {status.label}
+                </option>
+              ))}
+            </select>
+          )}
         </div>
 
         <table className="w-full text-sm text-left rtl:text-right text-gray-500 pt-5">
@@ -273,7 +343,7 @@ export const Table = (props: Props) => {
           </thead>
 
           <tbody>
-            {dataList?.map((value) => (
+            {visibleData?.map((value) => (
               <TableItem
                 key={value.id}
                 value={value}
@@ -288,6 +358,19 @@ export const Table = (props: Props) => {
                 }
               />
             ))}
+
+            {name === "Quotes" && filteredQuotes.length === 0 && (
+              <tr>
+                <td
+                  colSpan={headers.length}
+                  className="bg-white px-6 py-10 text-center text-gray-500"
+                >
+                  {props.data?.length
+                    ? "No matching app quote requests."
+                    : "No app quote requests yet."}
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>
@@ -328,13 +411,10 @@ export const Table = (props: Props) => {
         />
       )}
 
-      {name === "Quotes" && selectedQuote && (
+      {name === "Quotes" && openViewQuote && selectedQuote && (
         <QuoteViewModal
           open={openViewQuote}
           setOpen={setOpenViewQuote}
-          handleAction={function (): Promise<boolean> {
-            throw new Error("Function not implemented.");
-          }}
           value={selectedQuote}
         />
       )}
