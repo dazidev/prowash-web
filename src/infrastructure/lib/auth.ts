@@ -1,53 +1,34 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 
-import { API, LoginWebResponse, RefreshWebResponse } from "@/interfaces";
+import { API, LoginWebResponse } from "@/interfaces";
+import type { JWT } from "next-auth/jwt";
+import { refreshWebToken, getCachedRefreshWebToken } from "./refresh-web-token";
 
-async function refreshAccessToken(token: any) {
+async function refreshAccessToken(token: JWT, trigger?: string): Promise<JWT> {
   try {
     if (!token.refreshToken || !token.sessionId) {
       throw new Error("Missing refresh token or session id");
     }
 
-    const response = await fetch(`${API}/api/auth/refresh-web`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        refreshToken: token.refreshToken,
-      }),
-      cache: "no-store",
-    });
-
-    let data: RefreshWebResponse | null = null;
-
-    try {
-      data = await response.json();
-    } catch {
-      throw new Error("Invalid refresh response");
-    }
-
-    if (!response.ok || !data?.accessToken) {
-      throw data;
-    }
+    const refreshed = await refreshWebToken(
+      token.sessionId,
+      token.refreshToken,
+    );
 
     return {
       ...token,
-      accessToken: data.accessToken,
-      refreshToken: data.refreshToken ?? token.refreshToken,
-      accessTokenExpiresAt: Date.now() + data.accessTokenExpiresIn * 1000,
-      refreshTokenExpiresAt: data.refreshTokenExpiresIn
-        ? Date.now() + data.refreshTokenExpiresIn * 1000
-        : token.refreshTokenExpiresAt,
+      ...refreshed,
+      needsSessionSync: trigger !== "update",
       error: undefined,
     };
-  } catch (error) {
-    console.error("Error refreshing access token", error);
+  } catch {
+    console.error("Error refreshing access token");
 
     return {
       ...token,
       accessToken: undefined,
+      needsSessionSync: false,
       error: "RefreshAccessTokenError",
     };
   }
@@ -144,11 +125,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   ],
 
   callbacks: {
-    async jwt({ token, user }) {
-      /**
-       * Primer login.
-       * Aquí `user` viene desde authorize().
-       */
+    async jwt({ token, user, trigger }) {
       if (user) {
         return {
           ...token,
@@ -167,16 +144,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           sessionId: user.sessionId,
 
           accessTokenExpiresAt: Date.now() + user.accessTokenExpiresIn * 1000,
-
           refreshTokenExpiresAt: Date.now() + user.refreshTokenExpiresIn * 1000,
 
+          needsSessionSync: false,
           error: undefined,
         };
       }
 
-      /**
-       * Si no existe expiración, algo quedó mal en el login.
-       */
       if (!token.accessTokenExpiresAt) {
         return {
           ...token,
@@ -184,9 +158,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         };
       }
 
-      /**
-       * Si el refresh token ya expiró, no intentes refrescar.
-       */
       if (
         token.refreshTokenExpiresAt &&
         Date.now() >= Number(token.refreshTokenExpiresAt)
@@ -199,24 +170,20 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         };
       }
 
-      /**
-       * Refrescamos 60 segundos antes de que expire el access token.
-       */
       const shouldRefresh =
         Date.now() >= Number(token.accessTokenExpiresAt) - 60_000;
 
       if (!shouldRefresh) {
-        return token;
+        return {
+          ...token,
+          needsSessionSync: false,
+        };
       }
 
-      return refreshAccessToken(token);
+      return refreshAccessToken(token, trigger);
     },
 
     async session({ session, token }) {
-      /**
-       * Esto SÍ llega al cliente.
-       * No pongas refreshToken aquí.
-       */
       session.user = {
         ...session.user,
         ...(token.user as any),
@@ -224,6 +191,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
       session.accessToken = token.accessToken as string | undefined;
       session.error = token.error as string | undefined;
+      session.needsSessionSync = token.needsSessionSync === true;
 
       return session;
     },
@@ -235,13 +203,17 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (!token?.refreshToken) return;
 
       try {
+        const cached = token.sessionId
+          ? await getCachedRefreshWebToken(token.sessionId, token.refreshToken)
+          : undefined;
+
         await fetch(`${API}/api/auth/logout-web`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            refreshToken: token.refreshToken,
+            refreshToken: cached?.refreshToken ?? token.refreshToken,
           }),
           cache: "no-store",
         });

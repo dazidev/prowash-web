@@ -9,5 +9,14 @@ interface Props {
 }
 
 export const AuthProvider = ({ children, session }: Props) => {
-  return <SessionProvider session={session}>{children}</SessionProvider>;
+  return (
+    <SessionProvider
+      session={session}
+      refetchInterval={60}
+      refetchOnWindowFocus={true}
+      refetchWhenOffline={false}
+    >
+      {children}
+    </SessionProvider>
+  );
 };

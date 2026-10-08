@@ -30,6 +30,7 @@ declare module "next-auth" {
       roles: string[];
       status: string;
     };
+    needsSessionSync?: boolean;
   }
 }
 
@@ -51,6 +52,7 @@ declare module "next-auth/jwt" {
     accessTokenExpiresAt?: number;
     refreshTokenExpiresAt?: number;
 
+    needsSessionSync?: boolean;
     error?: string;
   }
 }
