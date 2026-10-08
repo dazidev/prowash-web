@@ -1,6 +1,11 @@
 "use client";
-import { updateUserQuoteStatus } from "@/actions";
+import {
+  assignUserQuoteAppointment,
+  setUserQuoteFinalPrice,
+  updateUserQuoteStatus,
+} from "@/actions";
 import type {
+  ActionResponse,
   PackageOrderPurchaseStatus,
   PackageOrderQuote,
 } from "@/interfaces";
@@ -15,6 +20,7 @@ import {
   appQuoteStatuses,
   appQuoteStatusStyles,
 } from "../quotes/app-quote-status";
+import { formatInTimeZone, fromZonedTime } from "date-fns-tz";
 
 interface Props {
   open: boolean;
@@ -25,6 +31,38 @@ interface Props {
 interface DetailsProps {
   quote: PackageOrderQuote;
   onClose: () => void;
+}
+
+const APPOINTMENT_TIME_ZONE = "America/New_York";
+
+const statusTransitions: Record<
+  PackageOrderPurchaseStatus,
+  PackageOrderPurchaseStatus[]
+> = {
+  PENDING_REVIEW: ["PENDING_REVIEW", "ASSIGNED_APPOINTMENT", "CANCELLED"],
+  ASSIGNED_APPOINTMENT: ["ASSIGNED_APPOINTMENT", "QUOTED", "CANCELLED"],
+  APPOINTMENT_RESCHEDULE_REQUESTED: [
+    "APPOINTMENT_RESCHEDULE_REQUESTED",
+    "ASSIGNED_APPOINTMENT",
+    "CANCELLED",
+  ],
+  QUOTED: ["QUOTED", "PAID", "CANCELLED"],
+  PAID: ["PAID"],
+  CANCELLED: ["CANCELLED"],
+};
+
+function formatAppointment(
+  date: string | null,
+  timeZone: string | null,
+  pattern: string,
+): string {
+  if (!date || !timeZone) return "";
+
+  try {
+    return formatInTimeZone(date, timeZone, pattern);
+  } catch {
+    return "";
+  }
 }
 
 export const QuoteViewModal = ({ open, setOpen, value }: Props) => {
@@ -51,6 +89,55 @@ const AppQuoteDetails = ({ quote, onClose }: DetailsProps) => {
     useState<PackageOrderPurchaseStatus>(quote.purchaseStatus);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
+
+  const appointmentId = useId();
+  const finalPriceId = useId();
+
+  const initialAppointmentLocal = formatAppointment(
+    quote.appointmentAt,
+    APPOINTMENT_TIME_ZONE,
+    "yyyy-MM-dd'T'HH:mm:ss",
+  );
+
+  const initialFinalPrice = quote.finalPrice?.toString() ?? "";
+
+  const [appointmentLocal, setAppointmentLocal] = useState(
+    initialAppointmentLocal,
+  );
+
+  const [finalPriceInput, setFinalPriceInput] = useState(initialFinalPrice);
+  const [editingAppointment, setEditingAppointment] = useState(
+    quote.purchaseStatus === "APPOINTMENT_RESCHEDULE_REQUESTED",
+  );
+
+  const showAppointmentFields =
+    editingAppointment || selectedStatus === "ASSIGNED_APPOINTMENT";
+
+  const showFinalPriceField =
+    !showAppointmentFields && selectedStatus === "QUOTED";
+
+  const appointmentChanged = appointmentLocal !== initialAppointmentLocal;
+
+  const hasChanges = showAppointmentFields
+    ? appointmentChanged || quote.purchaseStatus === "PENDING_REVIEW"
+    : showFinalPriceField
+      ? finalPriceInput !== initialFinalPrice ||
+        selectedStatus !== quote.purchaseStatus
+      : selectedStatus !== quote.purchaseStatus;
+
+  const missingFields =
+    (showAppointmentFields && !appointmentLocal) ||
+    (showFinalPriceField && !finalPriceInput.trim());
+
+  const statusOptions = appQuoteStatuses.filter(({ value }) =>
+    statusTransitions[quote.purchaseStatus].includes(value),
+  );
+
+  const saveLabel = showAppointmentFields
+    ? "Save appointment"
+    : showFinalPriceField
+      ? "Save final price"
+      : "Save status";
 
   const currentStatusLabel = appQuoteStatuses.find(
     (status) => status.value === quote.purchaseStatus,
@@ -95,9 +182,7 @@ const AppQuoteDetails = ({ quote, onClose }: DetailsProps) => {
   const handleSubmit = async (event: SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (submittingRef.current || selectedStatus === quote.purchaseStatus) {
-      return;
-    }
+    if (submittingRef.current || !hasChanges) return;
 
     submittingRef.current = true;
     setIsSubmitting(true);
@@ -106,23 +191,83 @@ const AppQuoteDetails = ({ quote, onClose }: DetailsProps) => {
     let saved = false;
 
     try {
-      const response = await updateUserQuoteStatus(quote.id, selectedStatus);
+      let response: ActionResponse<unknown>;
+
+      if (showAppointmentFields) {
+        if (!appointmentLocal) {
+          throw new Error("Select the appointment date and time.");
+        }
+
+        const localValue =
+          appointmentLocal.length === 16
+            ? `${appointmentLocal}:00`
+            : appointmentLocal;
+
+        const appointmentDate = fromZonedTime(
+          localValue,
+          APPOINTMENT_TIME_ZONE,
+        );
+
+        if (
+          Number.isNaN(appointmentDate.getTime()) ||
+          formatInTimeZone(
+            appointmentDate,
+            APPOINTMENT_TIME_ZONE,
+            "yyyy-MM-dd'T'HH:mm:ss",
+          ) !== localValue
+        ) {
+          throw new Error(
+            "The selected date or time is invalid in South Carolina.",
+          );
+        }
+
+        if (
+          quote.purchaseStatus === "APPOINTMENT_RESCHEDULE_REQUESTED" &&
+          quote.appointmentAt &&
+          appointmentDate.getTime() === new Date(quote.appointmentAt).getTime()
+        ) {
+          throw new Error(
+            "Select a different date or time to resolve the reschedule request.",
+          );
+        }
+
+        response = await assignUserQuoteAppointment(quote.id, {
+          appointmentAt: appointmentDate.toISOString(),
+          expectedAppointmentVersion: quote.appointmentVersion,
+        });
+      } else if (showFinalPriceField) {
+        const finalPrice = Number(finalPriceInput);
+
+        if (
+          !finalPriceInput.trim() ||
+          !Number.isSafeInteger(finalPrice) ||
+          finalPrice < 0 ||
+          finalPrice > 2147483647
+        ) {
+          throw new Error("Enter a valid final price in whole dollars.");
+        }
+
+        response = await setUserQuoteFinalPrice(quote.id, {
+          finalPrice,
+          expectedAppointmentVersion: quote.appointmentVersion,
+          expectedFinalPrice: quote.finalPrice,
+        });
+      } else {
+        response = await updateUserQuoteStatus(quote.id, selectedStatus);
+      }
 
       if (!response.success) {
-        setError(
-          response.message ?? "Unable to update the app quote request status.",
-        );
+        setError(response.message ?? "Unable to save the quote.");
         return;
       }
 
-      toast.success(
-        response.message ?? "App quote request status updated successfully.",
-      );
-
+      toast.success(response.message ?? "Quote saved successfully.");
       saved = true;
-    } catch {
+    } catch (error: unknown) {
       setError(
-        "Unable to update the app quote request status. Please try again.",
+        error instanceof Error
+          ? error.message
+          : "Unable to save the quote. Please try again.",
       );
     } finally {
       submittingRef.current = false;
@@ -281,16 +426,67 @@ const AppQuoteDetails = ({ quote, onClose }: DetailsProps) => {
           </ul>
         </section>
 
+        <section className="rounded-xl border border-gray-200 p-4">
+          <h3 className="mb-4 font-bold">VISIT APPOINTMENT</h3>
+
+          <p className="font-semibold">
+            {formatAppointment(
+              quote.appointmentAt,
+              APPOINTMENT_TIME_ZONE,
+              "MMM d, yyyy 'at' HH:mm zzz",
+            ) || "No appointment assigned yet"}
+          </p>
+
+          {quote.appointmentAt && (
+            <p className="mt-1 text-sm text-gray-500">South Carolina time.</p>
+          )}
+
+          {quote.appointmentAt && (
+            <p className="mt-3 text-sm">
+              {quote.purchaseStatus === "CANCELLED"
+                ? "Quote cancelled"
+                : quote.purchaseStatus === "APPOINTMENT_RESCHEDULE_REQUESTED"
+                  ? "The customer requested a different date."
+                  : quote.appointmentAcceptedAt
+                    ? "Appointment confirmed by the customer."
+                    : "Waiting for the customer's confirmation."}
+            </p>
+          )}
+
+          {quote.appointmentAt &&
+            (quote.purchaseStatus === "QUOTED" ||
+              quote.purchaseStatus === "PAID") && (
+              <button
+                type="button"
+                disabled={isSubmitting}
+                onClick={() => {
+                  setEditingAppointment((previous) => !previous);
+                  setSelectedStatus(quote.purchaseStatus);
+                  setError("");
+                }}
+                className="
+                  mt-4 rounded-lg border border-blue-200 px-4 py-2
+                  font-semibold text-pblue hover:bg-blue-50
+                  disabled:opacity-50
+                "
+              >
+                {editingAppointment
+                  ? "Cancel appointment editing"
+                  : "Modify appointment"}
+              </button>
+            )}
+        </section>
+
         <form
           onSubmit={handleSubmit}
           aria-busy={isSubmitting}
           className="border-t border-gray-200 pt-5"
         >
           <fieldset disabled={isSubmitting} className="flex flex-col gap-4">
-            <legend className="mb-3 font-bold">REQUEST STATUS</legend>
+            <legend className="mb-3 font-bold">UPDATE QUOTE</legend>
 
             <label htmlFor={statusId} className="sr-only">
-              App quote request status
+              Quote status
             </label>
 
             <select
@@ -300,20 +496,84 @@ const AppQuoteDetails = ({ quote, onClose }: DetailsProps) => {
                 setSelectedStatus(
                   event.target.value as PackageOrderPurchaseStatus,
                 );
+                setEditingAppointment(false);
                 setError("");
               }}
               className="
                 rounded-lg border border-gray-300 bg-white
-                px-4 py-3 outline-none
-                focus:ring-2 focus:ring-blue-500
+                px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500
               "
             >
-              {appQuoteStatuses.map((status) => (
-                <option key={status.value} value={status.value}>
+              {statusOptions.map((status) => (
+                <option
+                  key={status.value}
+                  value={status.value}
+                  disabled={status.value === "APPOINTMENT_RESCHEDULE_REQUESTED"}
+                >
                   {status.label}
                 </option>
               ))}
             </select>
+
+            {showAppointmentFields && (
+              <div className="rounded-xl bg-blue-50 p-4">
+                <label
+                  htmlFor={appointmentId}
+                  className="mb-2 block text-sm font-semibold"
+                >
+                  Visit date and time
+                </label>
+
+                <input
+                  id={appointmentId}
+                  type="datetime-local"
+                  step={1}
+                  required
+                  value={appointmentLocal}
+                  onChange={(event) => {
+                    setAppointmentLocal(event.target.value);
+                    setError("");
+                  }}
+                  className="
+                    w-full rounded-lg border border-gray-300 bg-white
+                    px-3 py-3 outline-none focus:ring-2 focus:ring-blue-500
+                  "
+                />
+
+                <p className="mt-2 text-sm text-gray-600">
+                  South Carolina time.
+                </p>
+              </div>
+            )}
+
+            {showFinalPriceField && (
+              <div className="rounded-xl bg-purple-50 p-4">
+                <label
+                  htmlFor={finalPriceId}
+                  className="mb-2 block text-sm font-semibold"
+                >
+                  Final price — USD / year
+                </label>
+
+                <input
+                  id={finalPriceId}
+                  type="number"
+                  min={0}
+                  max={2147483647}
+                  step={1}
+                  required
+                  value={finalPriceInput}
+                  onChange={(event) => {
+                    setFinalPriceInput(event.target.value);
+                    setError("");
+                  }}
+                  className="
+                    w-full rounded-lg border border-gray-300 bg-white
+                    px-3 py-3 outline-none focus:ring-2 focus:ring-purple-500
+                  "
+                />
+              </div>
+            )}
 
             <div className="flex flex-wrap justify-end gap-3">
               <button
@@ -326,9 +586,7 @@ const AppQuoteDetails = ({ quote, onClose }: DetailsProps) => {
 
               <button
                 type="submit"
-                disabled={
-                  isSubmitting || selectedStatus === quote.purchaseStatus
-                }
+                disabled={isSubmitting || !hasChanges || missingFields}
                 className="
                   flex items-center justify-center gap-2
                   rounded-lg bg-pblue px-5 py-3
@@ -342,7 +600,7 @@ const AppQuoteDetails = ({ quote, onClose }: DetailsProps) => {
                     <span>Saving...</span>
                   </>
                 ) : (
-                  "Save status"
+                  saveLabel
                 )}
               </button>
             </div>

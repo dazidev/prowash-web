@@ -50,6 +50,7 @@ export type ServiceInPackageOrder = {
 export type PackageOrderPurchaseStatus =
   | "PENDING_REVIEW"
   | "ASSIGNED_APPOINTMENT"
+  | "APPOINTMENT_RESCHEDULE_REQUESTED"
   | "QUOTED"
   | "PAID"
   | "CANCELLED";
@@ -61,6 +62,10 @@ export interface PackageOrderQuote {
   finalPrice: number | null;
   range: number;
   purchaseStatus: PackageOrderPurchaseStatus;
+  appointmentAt: string | null;
+  appointmentTimeZone: string | null;
+  appointmentAcceptedAt: string | null;
+  appointmentVersion: number;
   services: ServiceInPackageOrder[];
   createdAt: string;
   updatedAt: string;
@@ -86,6 +91,31 @@ export type PackageOrderStatusUpdated = Pick<
   PackageOrderQuote,
   "id" | "purchaseStatus" | "updatedAt"
 >;
+
+export interface AssignUserQuoteAppointmentPayload {
+  appointmentAt: string;
+  expectedAppointmentVersion: number;
+}
+
+export interface SetUserQuoteFinalPricePayload {
+  finalPrice: number;
+  expectedAppointmentVersion: number;
+  expectedFinalPrice: number | null;
+}
+
+export type PackageOrderAppointmentUpdated = Pick<
+  PackageOrderQuote,
+  | "id"
+  | "purchaseStatus"
+  | "appointmentAt"
+  | "appointmentTimeZone"
+  | "appointmentAcceptedAt"
+  | "appointmentVersion"
+  | "updatedAt"
+>;
+
+export type PackageOrderFinalPriceUpdated = PackageOrderAppointmentUpdated &
+  Pick<PackageOrderQuote, "initialPrice" | "finalPrice">;
 
 export interface IndividualService {
   serviceId: string;

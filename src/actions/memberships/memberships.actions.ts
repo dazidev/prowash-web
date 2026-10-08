@@ -3,9 +3,13 @@ import { serverApi } from "@/infrastructure/lib/api/server-api";
 import {
   ActionResponse,
   ApiError,
+  AssignUserQuoteAppointmentPayload,
+  PackageOrderAppointmentUpdated,
+  PackageOrderFinalPriceUpdated,
   PackageOrderPurchaseStatus,
   PackageOrderQuote,
   PackageOrderStatusUpdated,
+  SetUserQuoteFinalPricePayload,
   WebQuoteRequest,
   WebQuoteRequestStatus,
 } from "@/interfaces";
@@ -122,6 +126,55 @@ export async function updateWebQuoteStatus(
       message: getQuoteErrorMessage(
         error,
         "Unable to update the quote request status.",
+      ),
+    };
+  }
+}
+
+export async function assignUserQuoteAppointment(
+  id: string,
+  payload: AssignUserQuoteAppointmentPayload,
+): Promise<ActionResponse<PackageOrderAppointmentUpdated>> {
+  try {
+    const response = await serverApi.patch<PackageOrderAppointmentUpdated>(
+      `/memberships/quotes/${id}/appointment`,
+      payload,
+    );
+
+    return {
+      success: true,
+      message: "Appointment saved successfully.",
+      data: response.data,
+    };
+  } catch (error: unknown) {
+    return {
+      success: false,
+      message: getQuoteErrorMessage(error, "Unable to save the appointment."),
+    };
+  }
+}
+
+export async function setUserQuoteFinalPrice(
+  id: string,
+  payload: SetUserQuoteFinalPricePayload,
+): Promise<ActionResponse<PackageOrderFinalPriceUpdated>> {
+  try {
+    const response = await serverApi.patch<PackageOrderFinalPriceUpdated>(
+      `/memberships/quotes/${id}/final-price`,
+      payload,
+    );
+
+    return {
+      success: true,
+      message: "Final quote price saved successfully.",
+      data: response.data,
+    };
+  } catch (error: unknown) {
+    return {
+      success: false,
+      message: getQuoteErrorMessage(
+        error,
+        "Unable to save the final quote price.",
       ),
     };
   }
