@@ -1,12 +1,11 @@
 import { getUserQuotes, getWebQuotes } from "@/actions";
 import { QuotesManagement } from "@/components/dashboard/quotes/QuotesManagement";
-import type { PackageOrderQuote } from "@/interfaces";
 
 export const dynamic = "force-dynamic";
 
 export default async function ClientQuotesPage() {
-  const [appQuotes, webQuotesResponse] = await Promise.all([
-    getUserQuotes() as Promise<PackageOrderQuote[]>,
+  const [appQuotesResponse, webQuotesResponse] = await Promise.all([
+    getUserQuotes(),
     getWebQuotes(),
   ]);
 
@@ -22,7 +21,7 @@ export default async function ClientQuotesPage() {
         </p>
 
         <QuotesManagement
-          appQuotes={appQuotes}
+          appQuotesResponse={appQuotesResponse}
           webQuotesResponse={webQuotesResponse}
         />
       </div>

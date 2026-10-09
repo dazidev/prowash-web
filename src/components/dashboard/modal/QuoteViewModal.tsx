@@ -10,7 +10,7 @@ import type {
   PackageOrderQuote,
 } from "@/interfaces";
 import { useRouter } from "next/navigation";
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState, useTransition } from "react";
 import type { SubmitEvent } from "react";
 import toast from "react-hot-toast";
 import { IoClose } from "react-icons/io5";
@@ -89,6 +89,8 @@ const AppQuoteDetails = ({ quote, onClose }: DetailsProps) => {
     useState<PackageOrderPurchaseStatus>(quote.purchaseStatus);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [requiresReload, setRequiresReload] = useState(false);
+  const [isReloading, startReload] = useTransition();
 
   const appointmentId = useId();
   const finalPriceId = useId();
@@ -179,10 +181,15 @@ const AppQuoteDetails = ({ quote, onClose }: DetailsProps) => {
     onClose();
   };
 
+  const reloadQuote = () => {
+    startReload(() => {
+      router.refresh();
+    });
+  };
+
   const handleSubmit = async (event: SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
-
-    if (submittingRef.current || !hasChanges) return;
+    if (submittingRef.current || requiresReload || !hasChanges) return;
 
     submittingRef.current = true;
     setIsSubmitting(true);
@@ -253,10 +260,25 @@ const AppQuoteDetails = ({ quote, onClose }: DetailsProps) => {
           expectedFinalPrice: quote.finalPrice,
         });
       } else {
-        response = await updateUserQuoteStatus(quote.id, selectedStatus);
+        response = await updateUserQuoteStatus(quote.id, selectedStatus, quote);
       }
 
       if (!response.success) {
+        if (response.statusCode === 409) {
+          setRequiresReload(true);
+
+          setError(
+            "This quote changed. Reload its latest information before saving again.",
+          );
+
+          toast.error(
+            "The quote changed. Reloading the latest information. Review it before saving again.",
+          );
+
+          reloadQuote();
+          return;
+        }
+
         setError(response.message ?? "Unable to save the quote.");
         return;
       }
@@ -458,7 +480,7 @@ const AppQuoteDetails = ({ quote, onClose }: DetailsProps) => {
               quote.purchaseStatus === "PAID") && (
               <button
                 type="button"
-                disabled={isSubmitting}
+                disabled={isSubmitting || requiresReload}
                 onClick={() => {
                   setEditingAppointment((previous) => !previous);
                   setSelectedStatus(quote.purchaseStatus);
@@ -479,10 +501,13 @@ const AppQuoteDetails = ({ quote, onClose }: DetailsProps) => {
 
         <form
           onSubmit={handleSubmit}
-          aria-busy={isSubmitting}
+          aria-busy={isSubmitting || isReloading}
           className="border-t border-gray-200 pt-5"
         >
-          <fieldset disabled={isSubmitting} className="flex flex-col gap-4">
+          <fieldset
+            disabled={isSubmitting || requiresReload}
+            className="flex flex-col gap-4"
+          >
             <legend className="mb-3 font-bold">UPDATE QUOTE</legend>
 
             <label htmlFor={statusId} className="sr-only">
@@ -586,7 +611,9 @@ const AppQuoteDetails = ({ quote, onClose }: DetailsProps) => {
 
               <button
                 type="submit"
-                disabled={isSubmitting || !hasChanges || missingFields}
+                disabled={
+                  isSubmitting || requiresReload || !hasChanges || missingFields
+                }
                 className="
                   flex items-center justify-center gap-2
                   rounded-lg bg-pblue px-5 py-3
@@ -605,7 +632,20 @@ const AppQuoteDetails = ({ quote, onClose }: DetailsProps) => {
               </button>
             </div>
           </fieldset>
-
+          {requiresReload && (
+            <button
+              type="button"
+              onClick={reloadQuote}
+              disabled={isReloading}
+              className="
+                mt-4 rounded-lg border border-blue-200
+                px-4 py-2 font-semibold text-pblue
+                hover:bg-blue-50 disabled:opacity-50
+              "
+            >
+              {isReloading ? "Reloading quote..." : "Reload quote"}
+            </button>
+          )}
           {error && (
             <div role="alert" className="mt-4">
               <ErrorDialog error={error} />

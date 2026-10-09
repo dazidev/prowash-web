@@ -1,15 +1,17 @@
 "use client";
+
 import type {
   ActionResponse,
   PackageOrderQuote,
   WebQuoteRequest,
 } from "@/interfaces";
-import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useState, useTransition } from "react";
 import { Table } from "../table/Table";
 import { WebQuotesTable } from "./WebQuotesTable";
 
 interface Props {
-  appQuotes: PackageOrderQuote[];
+  appQuotesResponse: ActionResponse<PackageOrderQuote[]>;
   webQuotesResponse: ActionResponse<WebQuoteRequest[]>;
 }
 
@@ -24,10 +26,25 @@ const appHeaders = [
   "Actions",
 ];
 
-export const QuotesManagement = ({ appQuotes, webQuotesResponse }: Props) => {
+export const QuotesManagement = ({
+  appQuotesResponse,
+  webQuotesResponse,
+}: Props) => {
+  const router = useRouter();
   const [source, setSource] = useState<QuoteSource>("app");
+  const [isReloading, startReload] = useTransition();
 
+  const appQuotes = appQuotesResponse.data ?? [];
   const webQuotes = webQuotesResponse.data ?? [];
+
+  const selectedResponse =
+    source === "app" ? appQuotesResponse : webQuotesResponse;
+
+  const reloadQuotes = () => {
+    startReload(() => {
+      router.refresh();
+    });
+  };
 
   const buttonClassName = (selected: boolean) =>
     `
@@ -41,7 +58,7 @@ export const QuotesManagement = ({ appQuotes, webQuotesResponse }: Props) => {
     `;
 
   return (
-    <div>
+    <div aria-busy={isReloading}>
       <div
         role="group"
         aria-label="Quote source"
@@ -53,7 +70,8 @@ export const QuotesManagement = ({ appQuotes, webQuotesResponse }: Props) => {
           onClick={() => setSource("app")}
           className={buttonClassName(source === "app")}
         >
-          App Quotes ({appQuotes.length})
+          App Quotes
+          {appQuotesResponse.success && ` (${appQuotes.length})`}
         </button>
 
         <button
@@ -67,18 +85,31 @@ export const QuotesManagement = ({ appQuotes, webQuotesResponse }: Props) => {
         </button>
       </div>
 
-      {source === "app" ? (
-        <Table name="Quotes" headers={appHeaders} data={appQuotes} />
-      ) : webQuotesResponse.success ? (
-        <WebQuotesTable data={webQuotes} />
-      ) : (
+      {!selectedResponse.success ? (
         <div
           role="alert"
           className="m-5 rounded-lg bg-red-100 p-5 text-red-800"
         >
-          {webQuotesResponse.message ??
-            "Unable to load website quote requests."}
+          <p>
+            {selectedResponse.message ??
+              (source === "app"
+                ? "Unable to load app quote requests."
+                : "Unable to load website quote requests.")}
+          </p>
+
+          <button
+            type="button"
+            onClick={reloadQuotes}
+            disabled={isReloading}
+            className="mt-4 rounded-lg border border-red-300 px-4 py-2 font-semibold hover:bg-red-200 disabled:opacity-50"
+          >
+            {isReloading ? "Reloading quotes..." : "Retry"}
+          </button>
         </div>
+      ) : source === "app" ? (
+        <Table name="Quotes" headers={appHeaders} data={appQuotes} />
+      ) : (
+        <WebQuotesTable data={webQuotes} />
       )}
     </div>
   );

@@ -17,7 +17,7 @@ import { isAxiosError } from "axios";
 
 export async function getUserQuotes(
   purchaseStatus?: PackageOrderPurchaseStatus,
-): Promise<PackageOrderQuote[]> {
+): Promise<ActionResponse<PackageOrderQuote[]>> {
   try {
     const response = await serverApi.get<PackageOrderQuote[]>(
       "/memberships/quotes",
@@ -26,21 +26,35 @@ export async function getUserQuotes(
       },
     );
 
-    return response.data;
+    return {
+      success: true,
+      data: response.data,
+    };
   } catch (error: unknown) {
-    console.log(error);
-    return [];
+    return {
+      success: false,
+      statusCode: getQuoteErrorStatus(error),
+      message: getQuoteErrorMessage(
+        error,
+        "Unable to load app quote requests.",
+      ),
+    };
   }
 }
 
 export async function updateUserQuoteStatus(
   id: string,
   purchaseStatus: PackageOrderPurchaseStatus,
+  expectedQuote: Pick<PackageOrderQuote, "purchaseStatus" | "updatedAt">,
 ): Promise<ActionResponse<PackageOrderStatusUpdated>> {
   try {
     const response = await serverApi.patch<PackageOrderStatusUpdated>(
       `/memberships/quotes/${id}/status`,
-      { purchaseStatus },
+      {
+        purchaseStatus,
+        expectedPurchaseStatus: expectedQuote.purchaseStatus,
+        expectedUpdatedAt: expectedQuote.updatedAt,
+      },
     );
 
     return {
@@ -55,6 +69,7 @@ export async function updateUserQuoteStatus(
         error,
         "Unable to update the app quote request status.",
       ),
+      statusCode: getQuoteErrorStatus(error),
     };
   }
 }
@@ -149,7 +164,7 @@ export async function assignUserQuoteAppointment(
   } catch (error: unknown) {
     return {
       success: false,
-      message: getQuoteErrorMessage(error, "Unable to save the appointment."),
+      statusCode: getQuoteErrorStatus(error),
     };
   }
 }
@@ -176,6 +191,7 @@ export async function setUserQuoteFinalPrice(
         error,
         "Unable to save the final quote price.",
       ),
+      statusCode: getQuoteErrorStatus(error),
     };
   }
 }
@@ -201,4 +217,8 @@ function getQuoteErrorMessage(error: unknown, fallback: string): string {
   }
 
   return fallback;
+}
+
+function getQuoteErrorStatus(error: unknown): number | undefined {
+  return isAxiosError(error) ? error.response?.status : undefined;
 }
