@@ -1,4 +1,4 @@
-import { ActionResponse, ApiError } from "@/interfaces";
+import { ApiError } from "@/interfaces";
 import axios from "axios";
 
 export const getAxiosError = (error: unknown): string | null => {

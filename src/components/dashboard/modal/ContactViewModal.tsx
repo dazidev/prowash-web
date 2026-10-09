@@ -1,9 +1,8 @@
 "use client";
-
+import type React from "react";
 import { changeContactStatus } from "@/actions";
 import { Contact } from "@/interfaces";
 import { useRouter } from "next/navigation";
-import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
 interface Props {
@@ -19,40 +18,8 @@ export const ContactViewModal = ({
   handleAction,
   value,
 }: Props) => {
-  const [field, setField] = useState<Contact>({
-    id: value.id,
-    name: value.name,
-    lastname: value.lastname,
-    email: value.email,
-    phone: value.phone,
-    status: value.status,
-    zipcode: value.zipcode,
-    comments: value.comments,
-    createdAt: value.createdAt,
-    updatedAt: value.updatedAt,
-  });
+  const field = value;
   const router = useRouter();
-
-  useEffect(() => {
-    if (value) {
-      setField({
-        id: value.id,
-        name: value.name,
-        lastname: value.lastname,
-        email: value.email,
-        phone: value.phone,
-        status: value.status,
-        zipcode: value.zipcode,
-        comments: value.comments,
-        createdAt: value.createdAt,
-        updatedAt: value.updatedAt,
-      });
-    }
-  }, [value]);
-
-  const handleChange = (value: string, nameField: string) => {
-    setField((prev) => ({ ...prev, [nameField]: value }));
-  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();

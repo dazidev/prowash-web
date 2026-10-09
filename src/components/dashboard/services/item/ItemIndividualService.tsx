@@ -4,7 +4,7 @@ interface Props {
   name: string;
 }
 
-export const ItemIndividualService = ({ id, initialPrice, name }: Props) => {
+export const ItemIndividualService = ({ initialPrice, name }: Props) => {
   return (
     <tr className="bg-white border-b  border-gray-200 hover:bg-gray-50">
       <th className="px-6 py-4">

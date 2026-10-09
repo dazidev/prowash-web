@@ -5,7 +5,7 @@ import { CloseButton } from "@/components/common/button/CloseButton";
 import { DefaultButton } from "@/components/common/button/DefaultButton";
 import { TextInput } from "@/components/common/input/TextInput";
 import { useServices } from "@/context/ServicesProvider";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import toast from "react-hot-toast";
 
 interface Props {
@@ -19,15 +19,9 @@ export const CreatePackageModal = ({ open, setOpen }: Props) => {
     packageRangesData: rangesData,
     setAmountService,
     setAmountRange,
-    resetValues,
     revalidateData,
   } = useServices();
   const [name, setName] = useState("");
-
-  useEffect(() => {
-    resetValues();
-    setName("");
-  }, [open, resetValues]);
 
   const handleAmountService = (id: string, amount: string) => {
     if (!/^\d+$/.test(amount) && amount !== "") return;

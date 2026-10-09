@@ -1,5 +1,5 @@
 "use client";
-import { useContext, useEffect, useState } from "react";
+import { useRef, useState } from "react";
 import { CloseButton } from "../../common/button/CloseButton";
 import toast from "react-hot-toast";
 import { TextInput } from "@/components/common/input/TextInput";
@@ -10,7 +10,6 @@ import {
   updatePackageRange,
   updatePackageService,
 } from "@/actions";
-import { NextResponse, PackageRangeItem, PServiceItem } from "@/infrastructure";
 import { useServices } from "@/context/ServicesProvider";
 
 type Elements = "service" | "range" | "updateService" | "updateRange";
@@ -24,35 +23,51 @@ interface Props {
   targetId?: string;
 }
 
-export const AddServiceRangeModal = ({
+interface ContentProps extends Props {
+  initialValue: string;
+}
+
+export const AddServiceRangeModal = (props: Props) => {
+  const { packageServicesData, packageRangesData } = useServices();
+
+  if (!props.open) return null;
+
+  const item =
+    props.option === "update"
+      ? props.name === "updateService"
+        ? packageServicesData.find((service) => service.id === props.targetId)
+        : packageRangesData.find((range) => range.id === props.targetId)
+      : undefined;
+
+  if (props.option === "update" && !item) return null;
+
+  const initialValue = item
+    ? "name" in item
+      ? item.name
+      : item.description
+    : "";
+
+  return (
+    <AddServiceRangeModalContent
+      key={`${props.option}:${props.name}:${props.targetId ?? "new"}:${item?.updatedAt ?? "new"}`}
+      {...props}
+      initialValue={initialValue}
+    />
+  );
+};
+
+const AddServiceRangeModalContent = ({
   open,
   setOpen,
   name,
   option,
   targetId,
-}: Props) => {
-  const [loading, setLoading] = useState<boolean>(false);
-  const [value, setValue] = useState("");
-  const { revalidateData, packageServicesData, packageRangesData } =
-    useServices();
-
-  useEffect(() => {
-    if (option === "update") {
-      if (name === "updateService") {
-        const service = packageServicesData.find(
-          (service) => service.id === targetId,
-        );
-        if (service) {
-          setValue(service.name);
-        }
-      } else if (name === "updateRange") {
-        const range = packageRangesData.find((range) => range.id === targetId);
-        if (range) {
-          setValue(range.description);
-        }
-      }
-    }
-  }, [targetId]);
+  initialValue,
+}: ContentProps) => {
+  const [loading, setLoading] = useState(false);
+  const [value, setValue] = useState(initialValue);
+  const submittingRef = useRef(false);
+  const { revalidateData } = useServices();
 
   const formatName =
     option === "create"
@@ -63,35 +78,53 @@ export const AddServiceRangeModal = ({
 
   const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setLoading(true);
-    if (option === "update") {
-      if (!targetId) return;
-      if (name === "updateService") {
-        const response = await updatePackageService(targetId, value);
-        if (!response.success) return toast.error(`${response.message}`);
-        toast.success(`${response.message}`);
-        revalidateData("package-services");
-      } else if (name === "updateRange") {
-        const response = await updatePackageRange(targetId, value);
-        if (!response.success) return toast.error(`${response.message}`);
-        toast.success(`${response.message}`);
-        revalidateData("package-ranges");
-      }
-    } else if (option === "create") {
-      if (name === "service") {
-        const response = await createPackageService(value);
-        if (!response.success) return toast.error(`${response.message}`);
-        toast.success(`${response.message}`);
-        revalidateData("package-services");
-      } else if (name === "range") {
-        const response = await createPackageRange(value);
-        if (!response.success) return toast.error(`${response.message}`);
-        toast.success(`${response.message}`);
-        revalidateData("package-ranges");
-      }
+
+    if (submittingRef.current) return;
+
+    const submittedValue = value.trim();
+
+    if (!submittedValue) {
+      toast.error("Enter a value.");
+      return;
     }
-    setLoading(false);
-    setValue("");
+
+    submittingRef.current = true;
+    setLoading(true);
+
+    try {
+      const isService = name === "service" || name === "updateService";
+      let response;
+
+      if (option === "update") {
+        if (!targetId) {
+          toast.error("Select the record you want to update.");
+          return;
+        }
+
+        response = isService
+          ? await updatePackageService(targetId, submittedValue)
+          : await updatePackageRange(targetId, submittedValue);
+      } else {
+        response = isService
+          ? await createPackageService(submittedValue)
+          : await createPackageRange(submittedValue);
+      }
+
+      if (!response.success) {
+        toast.error(response.message ?? "Unable to save the record.");
+        return;
+      }
+
+      revalidateData(isService ? "package-services" : "package-ranges");
+
+      toast.success(response.message ?? "Record saved successfully.");
+      setValue("");
+    } catch {
+      toast.error("Unable to save the record. Please try again.");
+    } finally {
+      submittingRef.current = false;
+      setLoading(false);
+    }
   };
 
   if (!open) return null;

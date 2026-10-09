@@ -1,12 +1,11 @@
 "use client";
 
 import { DefaultButton } from "@/components/common/button/DefaultButton";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { BiSearch } from "react-icons/bi";
 import { ManageServicesModal } from "./modal/ManageServicesModal";
 import { CreatePackageModal } from "./modal/CreatePackageModal";
 import { useServices } from "@/context/ServicesProvider";
-import { PackageResponse } from "@/infrastructure";
 import { PackageItem } from "./PackageItem";
 import { deletePackage } from "@/actions";
 import toast from "react-hot-toast";
@@ -30,18 +29,19 @@ export const PackagesTable = ({ name, headers }: Props) => {
     packages: false,
     confirm: false,
   });
-  const [data, setData] = useState<PackageResponse[]>();
   const [targetId, setTargetId] = useState<string>("");
-  const { packageData, revalidateData } = useServices();
+  const { packageData: data, revalidateData, resetValues } = useServices();
 
-  useEffect(() => {
-    if (packageData) {
-      setData(packageData);
+  const handleModal = (value: boolean, option: string) => {
+    if (option === "packages") {
+      resetValues();
     }
-  }, [packageData]);
 
-  const handleModal = (value: boolean, option: string) =>
-    setOptions((prev) => ({ ...prev, [option]: value }));
+    setOptions((prev) => ({
+      ...prev,
+      [option]: value,
+    }));
+  };
 
   const handleOpenModalConfirm = (value: boolean) => {
     setOptions((prev) => ({ ...prev, ["confirm"]: value }));
@@ -111,7 +111,7 @@ export const PackagesTable = ({ name, headers }: Props) => {
                   key={packageItem.id}
                   item={packageItem}
                   setOpenConfirm={handleOpenModalConfirm}
-                  setOpenUpdate={function (value: boolean): void {
+                  setOpenUpdate={function (): void {
                     throw new Error("Function not implemented.");
                   }}
                   setTargetId={setTargetId}
@@ -147,7 +147,9 @@ export const PackagesTable = ({ name, headers }: Props) => {
           </nav>*/}
       </div>
       <ManageServicesModal open={options.services} setOpen={handleModal} />
-      <CreatePackageModal open={options.packages} setOpen={handleModal} />
+      {options.packages && (
+        <CreatePackageModal open={options.packages} setOpen={handleModal} />
+      )}
       <ConfirmModal
         open={options.confirm}
         setOpen={handleOpenModalConfirm}

@@ -32,7 +32,7 @@ export async function getReviews(): Promise<Review[] | undefined> {
     const res: Review[] = await response.json();
 
     return res;
-  } catch (error: unknown) {
+  } catch {
     return undefined;
   }
 }

@@ -16,7 +16,6 @@ interface Props {
 }
 
 export const CarouselReviews = ({ reviews }: Props) => {
-  const [groupedReviews, setGroupedReviews] = useState<Review[][]>([]);
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
@@ -33,14 +32,7 @@ export const CarouselReviews = ({ reviews }: Props) => {
     };
   }, []);
 
-  useEffect(() => {
-    if (!reviews) return;
-
-    const groupSize = isMobile ? 2 : 3;
-    const grouped = chunkArray(reviews, groupSize);
-
-    setGroupedReviews(grouped);
-  }, [reviews, isMobile]);
+  const groupedReviews = chunkArray(reviews ?? [], isMobile ? 2 : 3);
 
   return (
     <Swiper

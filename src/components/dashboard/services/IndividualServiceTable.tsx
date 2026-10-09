@@ -2,8 +2,7 @@
 
 import { BiSearch } from "react-icons/bi";
 import { CreateIndividualServiceModal } from "./modal/CreateIndividualServiceModal";
-import { useEffect, useState } from "react";
-import { IndividualServiceResponse } from "@/interfaces";
+import { useState } from "react";
 import { useServices } from "@/context/ServicesProvider";
 import { ItemIndividualService } from "./item/ItemIndividualService";
 
@@ -20,13 +19,7 @@ export const IndividualServiceTable = ({ name, headers }: Props) => {
     initialPrice: "",
   });
 
-  const [dataList, setDataList] = useState<IndividualServiceResponse[]>();
-
-  const { individualServicesData } = useServices();
-
-  useEffect(() => {
-    setDataList(individualServicesData);
-  }, [individualServicesData]);
+  const { individualServicesData: dataList } = useServices();
 
   const openCreate = (value: boolean) => {
     setOpen(value);

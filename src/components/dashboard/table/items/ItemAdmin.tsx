@@ -5,7 +5,7 @@ interface Props {
 }
 
 export const ItemAdmin = ({ admin }: Props) => {
-  const { id, name, lastname, email, roles, lastLogin } = admin;
+  const { name, lastname, email, roles, lastLogin } = admin;
 
   const initialNameLetters = `${name.slice(0, 1).toUpperCase()}${lastname
     .slice(0, 1)

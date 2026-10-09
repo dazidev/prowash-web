@@ -3,7 +3,7 @@
 import { Contact, PackageOrderQuote, User } from "@/interfaces";
 import { TableItem } from "./TableItem";
 import { BiSearch } from "react-icons/bi";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { FormModal } from "../modal/FormModal";
 import { ConfirmModal } from "../modal/ConfirmModal";
 import {
@@ -54,9 +54,6 @@ export const Table = (props: Props) => {
   const [quoteStatusFilter, setQuoteStatusFilter] = useState<
     "ALL" | PackageOrderPurchaseStatus
   >("ALL");
-  const [dataList, setDataList] = useState<
-    User[] | Contact[] | PackageOrderQuote[]
-  >();
 
   const [openModal, setOpenModal] = useState({
     create: false,
@@ -110,52 +107,23 @@ export const Table = (props: Props) => {
         })
       : [];
 
-  const visibleData = props.name === "Quotes" ? filteredQuotes : dataList;
+  const query = search.trim().toLowerCase();
 
-  useEffect(() => {
-    if (props.data) {
-      setDataList(props.data);
-    }
-  }, [props.data]);
+  const filteredRecords =
+    props.name === "Quotes"
+      ? []
+      : (props.data ?? []).filter((row) => {
+          const fullname = `${row.name} ${row.lastname ?? ""}`.toLowerCase();
+          const email = row.email.toLowerCase();
 
-  const findData = (value: string) => {
-    if (!props.data) return;
+          return fullname.includes(query) || email.includes(query);
+        });
 
-    const q = value.toLowerCase();
-
-    if (props.name === "Administrators") {
-      const dataFounds = props.data.filter((row) => {
-        const fullname = `${row.name.toLowerCase()} ${
-          row.lastname?.toLowerCase() ?? ""
-        }`;
-
-        const email = row.email.toLowerCase();
-
-        return fullname.includes(q) || email.includes(q);
-      });
-
-      setDataList(dataFounds);
-      return;
-    }
-
-    if (props.name === "Contacts") {
-      const dataFounds = props.data.filter((row) => {
-        const fullname = `${row.name.toLowerCase()} ${
-          row.lastname?.toLowerCase() ?? ""
-        }`;
-
-        const email = row.email.toLowerCase();
-
-        return fullname.includes(q) || email.includes(q);
-      });
-
-      setDataList(dataFounds);
-    }
-  };
+  const visibleData =
+    props.name === "Quotes" ? filteredQuotes : filteredRecords;
 
   const handleSearch = (value: string) => {
     setSearch(value);
-    findData(value);
   };
 
   const handleOpenModalCreate = (value: boolean) => {

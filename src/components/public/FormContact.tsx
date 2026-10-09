@@ -27,24 +27,29 @@ export const FormContact = () => {
     const formData = new FormData(form);
 
     const data = {
-      name: formData.get("first-name")?.toString()!,
-      lastname: formData.get("last-name")?.toString()!,
-      email: formData.get("email")?.toString()!,
-      zipcode: formData.get("zip-code")?.toString()!,
-      phone: formData.get("phone-number")?.toString()!,
-      comments: formData.get("comments")?.toString()!,
+      name: formData.get("first-name")?.toString() ?? "",
+      lastname: formData.get("last-name")?.toString() ?? "",
+      email: formData.get("email")?.toString() ?? "",
+      zipcode: formData.get("zip-code")?.toString() ?? "",
+      phone: formData.get("phone-number")?.toString() ?? "",
+      comments: formData.get("comments")?.toString() ?? "",
     };
 
     const response = await sendContact(data);
 
     if (!response.success) {
       setLoading((prev) => ({ ...prev, status: "loaded" }));
-      setError(response.message!);
+      setError(
+        response.message ?? "Unable to send your message. Please try again.",
+      );
       return;
     }
 
     form.reset();
-    setLoading((prev) => ({ message: response.message!, status: "loaded" }));
+    setLoading({
+      message: response.message ?? "Your message has been sent successfully.",
+      status: "loaded",
+    });
   };
 
   return (

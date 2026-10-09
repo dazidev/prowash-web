@@ -1,11 +1,10 @@
 "use client";
 
 import { DefaultButton } from "@/components/common/button/DefaultButton";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { BiSearch } from "react-icons/bi";
 import { AddServiceRangeModal } from "./AddServiceRangeModal";
 import { PackageServicesItem } from "./PackageServicesItem";
-import { PackageRangeItem, PServiceItem } from "@/infrastructure";
 import { useServices } from "@/context/ServicesProvider";
 import { ConfirmModal } from "../modal/ConfirmModal";
 import { deletePackageRange, deletePackageService } from "@/actions";
@@ -29,9 +28,6 @@ export const PackageServicesTable = ({ name, headers }: Props) => {
   });
   const [targetId, setTargetId] = useState("");
   const [dataView, setDataView] = useState<Views>("services");
-  const [dataList, setDataList] = useState<
-    PServiceItem[] | PackageRangeItem[]
-  >();
 
   const {
     packageServicesData: dataService,
@@ -39,17 +35,7 @@ export const PackageServicesTable = ({ name, headers }: Props) => {
     packageRangesData: dataRange,
   } = useServices();
 
-  useEffect(() => {
-    if (dataView === "services") {
-      if (dataService) {
-        setDataList(dataService);
-      }
-    } else if (dataView === "ranges") {
-      if (dataRange) {
-        setDataList(dataRange);
-      }
-    }
-  }, [dataService, dataRange, dataView]);
+  const dataList = dataView === "services" ? dataService : dataRange;
 
   const handleModal = (value: boolean, element: Elements) => {
     setOpenModal((prev) => ({ ...prev, [element]: value }));

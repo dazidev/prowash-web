@@ -165,6 +165,7 @@ export async function assignUserQuoteAppointment(
     return {
       success: false,
       statusCode: getQuoteErrorStatus(error),
+      message: getQuoteErrorMessage(error, "Unable to save the appointment."),
     };
   }
 }

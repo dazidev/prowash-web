@@ -2,8 +2,7 @@
 
 import { AdminForm, getAxiosError } from "@/infrastructure";
 import { serverApi } from "@/infrastructure/lib/api/server-api";
-import { ActionResponse, API, ApiError } from "@/interfaces";
-import axios from "axios";
+import { ActionResponse } from "@/interfaces";
 
 export async function getAdmins() {
   try {
@@ -19,7 +18,10 @@ export async function createAdmin(
   adminData: AdminForm,
 ): Promise<ActionResponse<undefined>> {
   try {
-    const res = await serverApi.post("/admin", adminData);
+    const res = await serverApi.post("/admin", {
+      ...adminData,
+      roles: adminData.roles[0],
+    });
 
     return {
       success: true,

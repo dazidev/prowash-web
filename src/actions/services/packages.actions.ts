@@ -162,7 +162,7 @@ export async function deletePackageRange(
     };
 
   try {
-    const response = await serverApi.delete(`/catalog/range/${id}`);
+    await serverApi.delete(`/catalog/range/${id}`);
 
     return {
       success: true,
@@ -189,7 +189,7 @@ export async function updatePackageRange(
     };
 
   try {
-    const response = await serverApi.patch(`/catalog/range/${id}`, {
+    await serverApi.patch(`/catalog/range/${id}`, {
       description,
       unit: "ft2",
     });
@@ -199,7 +199,6 @@ export async function updatePackageRange(
       message: "The package range has been updated successfully",
     };
   } catch (error: unknown) {
-    console.log(error);
     const message = getAxiosError(error);
     return {
       success: false,
@@ -260,7 +259,7 @@ export async function deletePackage(
     };
 
   try {
-    const response = await serverApi.delete(`/catalog/package/${id}`);
+    await serverApi.delete(`/catalog/package/${id}`);
 
     return {
       success: true,

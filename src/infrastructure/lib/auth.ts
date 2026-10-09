@@ -186,7 +186,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     async session({ session, token }) {
       session.user = {
         ...session.user,
-        ...(token.user as any),
+        ...token.user,
       };
 
       session.accessToken = token.accessToken as string | undefined;

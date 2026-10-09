@@ -48,7 +48,7 @@ async function uploadImage(
       return { code: "R2_UPLOAD_FAILED", message: "R2 is failing." };
 
     return url.data!.key;
-  } catch (error) {
+  } catch {
     return {
       code: "ERROR_UPLOAD_IMAGE",
       message: "There was an unknown problem uploading the image.",
@@ -81,7 +81,7 @@ async function attachImage(
       };
 
     return true;
-  } catch (error) {
+  } catch {
     return {
       code: "ERROR_ATTACH_IMAGE",
       message: "There was an unknown problem attaching the image.",
@@ -144,7 +144,7 @@ export async function getAdvertising() {
     if (!response.success) return response.error;
 
     return response.data;
-  } catch (error) {
+  } catch {
     return {
       code: "ERROR_GET_ADVERTISING",
       message: "There was an unknown problem getting the advertisings.",
@@ -167,7 +167,7 @@ export async function deleteAdvertising(
 
     revalidateTag("advertising", "default");
     return true;
-  } catch (error) {
+  } catch {
     return {
       code: "ERROR_DELETE_ADVERTISING",
       message: "There was an unknown problem deleting the advertisings.",

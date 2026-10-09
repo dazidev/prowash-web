@@ -2,7 +2,7 @@
 
 import { AdminForm } from "@/infrastructure";
 import { User } from "@/interfaces";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 
 interface Props {
   open: boolean;
@@ -12,35 +12,41 @@ interface Props {
   user?: User;
 }
 
-export const FormModal = ({
+export const FormModal = (props: Props) => {
+  if (!props.open || (props.type === "edit" && !props.user)) return null;
+
+  return (
+    <FormModalContent
+      key={
+        props.type === "edit"
+          ? `${props.user?.id}:${props.user?.updatedAt}`
+          : "create"
+      }
+      {...props}
+    />
+  );
+};
+
+export const FormModalContent = ({
   open,
   setOpen,
   handleAction,
   type,
   user,
 }: Props) => {
-  const [field, setField] = useState<AdminForm>({
-    name: "",
-    lastname: "",
-    email: "",
+  const [field, setField] = useState<AdminForm>(() => ({
+    name: type === "edit" ? (user?.name ?? "") : "",
+    lastname: type === "edit" ? (user?.lastname ?? "") : "",
+    email: type === "edit" ? (user?.email ?? "") : "",
     password: "",
-    roles: [""],
-  });
+    roles: type === "edit" ? [...(user?.roles ?? [])] : [],
+  }));
 
-  useEffect(() => {
-    if (user) {
-      setField({
-        name: user.name,
-        lastname: user.lastname,
-        email: user.email,
-        password: "",
-        roles: user.roles,
-      });
-    }
-  }, [user]);
-
-  const handleChange = (value: string, nameField: string) => {
-    setField((prev) => ({ ...prev, [nameField]: value }));
+  const handleChange = (value: string, nameField: keyof AdminForm) => {
+    setField((prev) => ({
+      ...prev,
+      [nameField]: nameField === "roles" ? (value ? [value] : []) : value,
+    }));
   };
 
   const clearFields = () => {
@@ -49,7 +55,7 @@ export const FormModal = ({
       lastname: "",
       email: "",
       password: "",
-      roles: [""],
+      roles: [],
     }));
   };
 
@@ -194,8 +200,9 @@ export const FormModal = ({
                     <select
                       id="role"
                       className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5"
-                      value={field.roles}
+                      value={field.roles[0] ?? ""}
                       onChange={(e) => handleChange(e.target.value, "roles")}
+                      required
                     >
                       <option value="">Select role</option>
                       <option value="ADMIN">Administrator</option>

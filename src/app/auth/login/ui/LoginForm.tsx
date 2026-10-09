@@ -25,8 +25,8 @@ export const LoginForm = () => {
     }
 
     const data = {
-      email: formData.get("email")?.toString()!,
-      password: formData.get("password")?.toString()!,
+      email: formData.get("email")?.toString() ?? "",
+      password: formData.get("password")?.toString() ?? "",
       deviceId,
       deviceInfo: userAgent,
     };
@@ -34,7 +34,9 @@ export const LoginForm = () => {
     const result = await authenticate(data);
 
     if (!result?.ok) {
-      setErrorMessage(result?.message!);
+      setErrorMessage(
+        result?.message ?? "Unable to sign in. Please try again.",
+      );
     }
 
     setIsLoading(false);
