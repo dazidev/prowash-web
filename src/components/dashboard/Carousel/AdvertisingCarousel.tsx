@@ -1,6 +1,6 @@
 "use client";
 
-import { Dispatch, SetStateAction, useState } from "react";
+import { Dispatch, SetStateAction, useMemo, useState } from "react";
 import { ImageInput } from "../input/ImageInput";
 import { NumberInput } from "../input/NumberInput";
 import Carousel from "./Carousel";
@@ -13,13 +13,7 @@ type ImageObj = {
   image5: File | null;
 };
 
-type PreviewObj = {
-  image1: string | null;
-  image2: string | null;
-  image3: string | null;
-  image4: string | null;
-  image5: string | null;
-};
+type PreviewObj = { [K in keyof ImageObj]: string | null };
 
 interface Props {
   imageFile: ImageObj;
@@ -36,30 +30,54 @@ export const AdvertisingCarousel = ({ imageFile, setImageFile }: Props) => {
     image5: null,
   });
 
-  const amount = Array.from({ length: imageAmount }, (_, i) => i + 1);
+  const previewSetters = useMemo(() => {
+    const setter = (field: keyof PreviewObj) => (value: string | null) =>
+      setPreview((previous) => ({ ...previous, [field]: value }));
+
+    return {
+      image1: setter("image1"),
+      image2: setter("image2"),
+      image3: setter("image3"),
+      image4: setter("image4"),
+      image5: setter("image5"),
+    };
+  }, []);
+
+  const changeAmount = (value: SetStateAction<number>) => {
+    const next = typeof value === "function" ? value(imageAmount) : value;
+
+    setImageAmount(next);
+    setImageFile((previous) => ({
+      ...previous,
+      image3: next >= 3 ? previous.image3 : null,
+      image4: next >= 4 ? previous.image4 : null,
+      image5: next >= 5 ? previous.image5 : null,
+    }));
+  };
 
   return (
     <div>
-      <Carousel loop>
-        {amount.map((num) => {
-          const field = `image${num}` as keyof ImageObj;
+      <Carousel key={imageAmount} loop>
+        {Array.from({ length: imageAmount }, (_, index) => {
+          const number = index + 1;
+          const field = `image${number}` as keyof ImageObj;
+
           return (
             <ImageInput
-              key={num}
-              inputId={`dropzone-file-${num}`}
+              key={number}
+              inputId={`dropzone-file-${number}`}
               file={imageFile[field]}
-              setFile={(f: File | null) =>
-                setImageFile((prev) => ({ ...prev, [field]: f }))
+              setFile={(file) =>
+                setImageFile((previous) => ({ ...previous, [field]: file }))
               }
               preview={preview[field]}
-              setPreview={(f: string | null) =>
-                setPreview((prev) => ({ ...prev, [field]: f }))
-              }
+              setPreview={previewSetters[field]}
             />
           );
         })}
       </Carousel>
-      <NumberInput value={imageAmount} setValue={setImageAmount} />
+
+      <NumberInput value={imageAmount} setValue={changeAmount} />
     </div>
   );
 };

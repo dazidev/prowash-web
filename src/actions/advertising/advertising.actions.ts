@@ -6,52 +6,63 @@ import {
   AdvertisingForm,
   ApiBooleanResponse,
   ErrorApi,
+  getAxiosError,
   UrlUpImageResponse,
 } from "@/infrastructure";
+import { serverApi } from "@/infrastructure/lib/api/server-api";
 import { API } from "@/interfaces";
 import { revalidateTag } from "next/cache";
+import { updateTag } from "next/cache";
+import { validateAdvertisingImage } from "@/infrastructure/advertising/validateAdvertisingImage";
+import { parseVimeoVideo } from "@/infrastructure/advertising/parseVimeoVideo";
 
 type ImageKey = `image${1 | 2 | 3 | 4 | 5}`;
 
 async function uploadImage(
   id: string,
   image: File,
+  uploadedKeys: string[],
 ): Promise<string | ErrorApi> {
   try {
-    const dataImage = {
-      id,
-      mime: image.type,
-      ext: image.name.split(".").pop(),
-      size: image.size,
-    };
-
-    const responseUrl = await fetch(
-      `${API}/api/advertising/${id}/upload/image`,
+    const { data: response } = await serverApi.post<UrlUpImageResponse>(
+      `/advertising/${id}/upload/image`,
       {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(dataImage),
-        cache: "no-store",
+        mime: image.type,
+        ext: image.name.split(".").pop()?.toLowerCase(),
+        size: image.size,
       },
     );
 
-    const url: UrlUpImageResponse = await responseUrl.json();
-    if (!url.success) return url.error!;
+    if (!response.success || !response.data) {
+      return (
+        response.error ?? {
+          code: "ERROR_UPLOAD_IMAGE",
+          message: "Unable to generate the image upload URL.",
+        }
+      );
+    }
 
-    const putRes = await fetch(url.data!.uploadUrl, {
+    uploadedKeys.push(response.data.key);
+
+    const putRes = await fetch(response.data.uploadUrl, {
       method: "PUT",
       headers: { "Content-Type": image.type },
       body: image,
       cache: "no-store",
     });
-    if (!putRes.ok)
-      return { code: "R2_UPLOAD_FAILED", message: "R2 is failing." };
 
-    return url.data!.key;
-  } catch {
+    if (!putRes.ok) {
+      return {
+        code: "R2_UPLOAD_FAILED",
+        message: "Unable to upload the image.",
+      };
+    }
+
+    return response.data.key;
+  } catch (error: unknown) {
     return {
       code: "ERROR_UPLOAD_IMAGE",
-      message: "There was an unknown problem uploading the image.",
+      message: getAxiosError(error) ?? "Unable to upload the image.",
     };
   }
 }
@@ -59,32 +70,27 @@ async function uploadImage(
 async function attachImage(
   id: string,
   key: string,
-  position?: number,
+  position = 1,
 ): Promise<boolean | ErrorApi> {
   try {
-    const url = new URL(`${API}/api/advertising/${id}/image/attach`);
+    const { data: response } = await serverApi.post<ApiBooleanResponse>(
+      `/advertising/${id}/image/attach`,
+      { key },
+      { params: { image: position } },
+    );
 
-    if (position) url.searchParams.set("image", position.toString());
-
-    const response = await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ key }),
-      cache: "no-store",
-    });
-
-    const res: ApiBooleanResponse = await response.json();
-    if (!res.success)
+    if (!response.success) {
       return {
         code: "ERROR_ATTACH_IMAGE",
-        message: "There was an unknown problem attaching the image.",
+        message: "Unable to attach the image.",
       };
+    }
 
     return true;
-  } catch {
+  } catch (error: unknown) {
     return {
       code: "ERROR_ATTACH_IMAGE",
-      message: "There was an unknown problem attaching the image.",
+      message: getAxiosError(error) ?? "Unable to attach the image.",
     };
   }
 }
@@ -92,43 +98,113 @@ async function attachImage(
 export async function createAdvertising(
   advData: AdvertisingForm,
 ): Promise<boolean | ErrorApi> {
-  const adv = await fetch(`${API}/api/advertising/create`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(advData),
-    cache: "no-store",
-  });
-  const response: AdResponse = await adv.json();
+  const files: { position: number; file: File }[] = [];
 
-  //! todo: saber si respondio con un success = true
+  if (advData.type === "VIDEO" && !parseVimeoVideo(advData.video ?? "")) {
+    return {
+      code: "INVALID_VIMEO",
+      message: "Enter a valid Vimeo ID or URL.",
+    };
+  }
 
-  if (advData.type === "IMAGE") {
-    const { id } = response.data!;
-    const image = advData.image1!;
+  if (advData.type === "IMAGE" && !advData.image1) {
+    return {
+      code: "INVALID_IMAGE",
+      message: "Select an image.",
+    };
+  }
 
-    const key: string | ErrorApi = await uploadImage(id, image);
+  if (
+    advData.type === "IMAGE_CAROUSEL" &&
+    (!advData.image1 || !advData.image2)
+  ) {
+    return {
+      code: "INVALID_IMAGE",
+      message: "Select at least two images.",
+    };
+  }
 
-    if (!(typeof key === "string")) return key;
+  if (advData.type === "IMAGE" || advData.type === "IMAGE_CAROUSEL") {
+    const limit = advData.type === "IMAGE" ? 1 : 5;
 
-    const attach: boolean | ErrorApi = await attachImage(id, key);
+    for (let position = 1; position <= limit; position++) {
+      const file = advData[`image${position}` as ImageKey];
+      if (!file) continue;
 
-    if (!(typeof attach === "boolean")) return attach;
-  } else if (advData.type === "IMAGE_CAROUSEL") {
-    const { id } = response.data!;
-    for (let i = 1; i <= 5; i++) {
-      const image = `image${i}` as ImageKey;
-      const file = advData[image];
-      if (file === null || file === undefined) continue;
+      const message = validateAdvertisingImage(file);
+      if (message) return { code: "INVALID_IMAGE", message };
 
-      const key: string | ErrorApi = await uploadImage(id, file);
-      if (!(typeof key === "string")) return key;
-
-      const attach: boolean | ErrorApi = await attachImage(id, key, i);
-      if (!(typeof attach === "boolean")) return attach;
+      files.push({ position, file });
     }
   }
 
-  revalidateTag("advertising", "default");
+  let response: AdResponse;
+
+  try {
+    const { type, order, text, video } = advData;
+
+    const result = await serverApi.post<AdResponse>("/advertising/create", {
+      type,
+      order,
+      text,
+      ...(type === "VIDEO" ? { video } : {}),
+    });
+
+    response = result.data;
+  } catch (error: unknown) {
+    return {
+      code: "ERROR_CREATE_ADVERTISING",
+      message: getAxiosError(error) ?? "Unable to create the advertising.",
+    };
+  }
+
+  if (!response.success || !response.data) {
+    return (
+      response.error ?? {
+        code: "ERROR_CREATE_ADVERTISING",
+        message: "Unable to create the advertising.",
+      }
+    );
+  }
+
+  const id = response.data.id;
+  const uploadedKeys: string[] = [];
+
+  const rollback = async (error: ErrorApi): Promise<ErrorApi> => {
+    const cleanup = await deleteAdvertising(id, uploadedKeys);
+
+    if (cleanup === true) return error;
+
+    return {
+      code: "ERROR_CLEANUP_ADVERTISING",
+      message: `${error.message} Cleanup failed: ${
+        typeof cleanup === "object" ? cleanup.message : "Unknown error"
+      }. Delete the incomplete advertising before retrying.`,
+    };
+  };
+
+  for (const { position, file } of files) {
+    const key = await uploadImage(id, file, uploadedKeys);
+
+    if (typeof key !== "string") {
+      return rollback(key);
+    }
+
+    const attach = await attachImage(id, key, position);
+
+    if (attach !== true) {
+      return rollback(
+        typeof attach === "object"
+          ? attach
+          : {
+              code: "ERROR_ATTACH_IMAGE",
+              message: "Unable to attach the image.",
+            },
+      );
+    }
+  }
+
+  updateTag("advertising");
   return true;
 }
 
@@ -154,23 +230,27 @@ export async function getAdvertising() {
 
 export async function deleteAdvertising(
   id: string,
+  keys: string[] = [],
 ): Promise<boolean | ErrorApi> {
   try {
-    const deleteAdv = await fetch(`${API}/api/advertising/${id}`, {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-      cache: "no-store",
-    });
+    const { data: response } = await serverApi.delete<ApiBooleanResponse>(
+      `/advertising/${id}`,
+      { data: { keys } },
+    );
 
-    const response: AdResponse = await deleteAdv.json();
-    if (!response.success) return response.error!;
+    if (!response.success) {
+      return {
+        code: "ERROR_DELETE_ADVERTISING",
+        message: "Unable to delete the advertising.",
+      };
+    }
 
-    revalidateTag("advertising", "default");
+    updateTag("advertising");
     return true;
-  } catch {
+  } catch (error: unknown) {
     return {
       code: "ERROR_DELETE_ADVERTISING",
-      message: "There was an unknown problem deleting the advertisings.",
-    } as ErrorApi;
+      message: getAxiosError(error) ?? "Unable to delete the advertising.",
+    };
   }
 }

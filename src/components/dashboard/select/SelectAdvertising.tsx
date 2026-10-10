@@ -15,13 +15,13 @@ export const SelectAdvertising = ({ label, availableOrder }: Props) => {
   const [open, setOpen] = useState(false);
   const [typeAd, setTypeAd] = useState<TypeAd>("TEXT");
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (availableOrder.length === 0) {
       toast.error("There are no more advertising slots.");
       return;
     }
-    setOpen(!open);
+    setOpen(true);
   };
 
   return (
@@ -42,11 +42,8 @@ export const SelectAdvertising = ({ label, availableOrder }: Props) => {
             className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
             value={typeAd}
             onChange={(e) => setTypeAd(e.target.value as TypeAd)}
-            defaultValue={"TEXT"}
           >
-            <option value="TEXT" selected>
-              Only text
-            </option>
+            <option value="TEXT">Only text</option>
             <option value="IMAGE">Text + image</option>
             <option value="IMAGE_CAROUSEL">Text + image carousel</option>
             <option value="VIDEO">Text + video</option>
@@ -74,12 +71,15 @@ export const SelectAdvertising = ({ label, availableOrder }: Props) => {
           </div>
         </div>
       </form>
-      <AddAdvertisingModal
-        open={open}
-        setOpen={setOpen}
-        type={typeAd}
-        availableOrder={availableOrder}
-      />
+      {open && (
+        <AddAdvertisingModal
+          key={typeAd}
+          open={open}
+          setOpen={setOpen}
+          type={typeAd}
+          availableOrder={availableOrder}
+        />
+      )}
     </>
   );
 };

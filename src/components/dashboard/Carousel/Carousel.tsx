@@ -3,9 +3,9 @@
 import { useState, useRef } from "react";
 
 type CarouselProps = {
-  children: React.ReactNode[]; // cada hijo es un slide
+  children: React.ReactNode[];
   className?: string;
-  heightClass?: string; // ej: "h-56 md:h-96"
+  heightClass?: string;
   loop?: boolean;
 };
 
@@ -18,7 +18,6 @@ export default function Carousel({
   const [index, setIndex] = useState(0);
   const total = children.length;
 
-  // Swipe (opcional)
   const startX = useRef<number | null>(null);
   const onTouchStart = (e: React.TouchEvent) =>
     (startX.current = e.touches[0].clientX);
@@ -41,15 +40,13 @@ export default function Carousel({
 
   return (
     <div className={`relative w-full ${className}`}>
-      {/* Wrapper */}
       <div
         className={`relative overflow-hidden rounded-lg ${heightClass}`}
         onTouchStart={onTouchStart}
         onTouchEnd={onTouchEnd}
       >
-        {/* Track */}
         <div
-          className="flex w-full h-200 transition-transform duration-500 ease-in-out"
+          className="flex w-full h-full transition-transform duration-500 ease-in-out"
           style={{ transform: `translateX(-${index * 100}%)` }}
         >
           {children.map((child, i) => (
@@ -60,10 +57,10 @@ export default function Carousel({
         </div>
       </div>
 
-      {/* Indicadores */}
       <div className="absolute z-30 flex -translate-x-1/2 space-x-2 bottom-3 left-1/2">
         {children.map((_, i) => (
           <button
+            type="button"
             key={i}
             aria-label={`Ir al slide ${i + 1}`}
             onClick={() => setIndex(i)}
@@ -78,7 +75,6 @@ export default function Carousel({
         ))}
       </div>
 
-      {/* Controles */}
       <button
         type="button"
         onClick={prev}
@@ -86,7 +82,6 @@ export default function Carousel({
         aria-label="Anterior"
       >
         <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-black/30 hover:bg-black/40">
-          {/* ‹ */}
           <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
             <path
               d="M12 4L6 10L12 16"
@@ -105,7 +100,6 @@ export default function Carousel({
         aria-label="Siguiente"
       >
         <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-black/30 hover:bg-black/40">
-          {/* › */}
           <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
             <path
               d="M8 4L14 10L8 16"

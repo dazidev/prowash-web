@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import { validateAdvertisingImage } from "@/infrastructure/advertising/validateAdvertisingImage";
 
 interface Props {
   file: File | null;
@@ -10,9 +11,6 @@ interface Props {
   setPreview: (f: string | null) => void;
   inputId: string;
 }
-
-const MAX_MB = 2;
-const MAX_BYTES = MAX_MB * 1024 * 1024;
 
 export const ImageInput = ({
   file,
@@ -25,8 +23,14 @@ export const ImageInput = ({
 
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0] ?? null;
-    if (f && f.size > MAX_BYTES)
-      return setError("The image exceeds the maximum allowed size of 2 MB.");
+    const message = f ? validateAdvertisingImage(f) : null;
+
+    if (message) {
+      setError(message);
+      e.target.value = "";
+      return;
+    }
+
     setError("");
     setFile(f);
   };
@@ -42,15 +46,18 @@ export const ImageInput = ({
   }, [file, setPreview]);
 
   return (
-    <div className="flex justify-center aspect-[3/2]">
+    <div className="flex flex-col">
       <label
         htmlFor={inputId}
-        className="flex flex-col items-center justify-center w-full border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 overflow-hidden"
+        className="relative aspect-[3/2] flex flex-col items-center justify-center w-full border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 overflow-hidden"
       >
         {preview ? (
           <Image
             src={preview}
             alt="Preview"
+            fill
+            unoptimized
+            sizes="(max-width: 768px) 100vw, 400px"
             className="w-full h-full object-cover"
           />
         ) : (
@@ -75,20 +82,24 @@ export const ImageInput = ({
               drop
             </p>
             <p className="text-xs text-gray-500">
-              SVG, PNG, JPG o GIF (ASPECT 3:2)
+              JPG, PNG or WEBP — maximum 2 MB (aspect 3:2)
             </p>
-            {error && <p className="text-xs text-red-700 mt-2">{error}</p>}
           </div>
         )}
 
         <input
           id={inputId}
           type="file"
-          accept="image/*"
+          accept="image/jpeg,image/jpg,image/png,image/webp"
           className="hidden"
           onChange={onChange}
         />
       </label>
+      {error && (
+        <p role="alert" className="text-xs text-red-700 mt-2">
+          {error}
+        </p>
+      )}
     </div>
   );
 };

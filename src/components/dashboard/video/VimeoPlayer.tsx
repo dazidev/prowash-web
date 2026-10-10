@@ -1,10 +1,11 @@
 "use client";
 
-import React from "react";
+import { parseVimeoVideo } from "@/infrastructure/advertising/parseVimeoVideo";
 
 type Props = {
-  videoId: string; // p.ej. "123456789"
-  title?: string; // accesibilidad
+  videoId: string;
+  h?: string;
+  title?: string;
   autoplay?: boolean;
   loop?: boolean;
   muted?: boolean;
@@ -15,6 +16,7 @@ type Props = {
 
 export default function VimeoPlayer({
   videoId,
+  h,
   title = "Vimeo video",
   autoplay = false,
   loop = false,
@@ -23,6 +25,12 @@ export default function VimeoPlayer({
   byline = false,
   portrait = false,
 }: Props) {
+  const video = parseVimeoVideo(videoId, h);
+
+  if (!video) {
+    return <p role="alert">Enter a valid Vimeo ID or URL.</p>;
+  }
+
   const params = new URLSearchParams({
     autoplay: autoplay ? "1" : "0",
     loop: loop ? "1" : "0",
@@ -30,41 +38,46 @@ export default function VimeoPlayer({
     controls: controls ? "1" : "0",
     byline: byline ? "1" : "0",
     portrait: portrait ? "1" : "0",
-    // Opcionales recomendados:
     playsinline: "1",
-    dnt: "1", // Do Not Track
-    app_id: "nextjs", // marca tu app en analytics
-    responsive: "1",
+    dnt: "1",
   }).toString();
 
-  const src = `https://player.vimeo.com/video/${videoId}?${params}`;
+  const src = `${video.embedUrl}${video.hash ? "&" : "?"}${params}`;
 
   return (
-    <div style={{ position: "relative", width: "100%", aspectRatio: "16 / 9" }}>
-      <iframe
-        src={src}
-        allow="autoplay; fullscreen; picture-in-picture"
-        allowFullScreen
-        title={title}
-        loading="lazy"
+    <div className="w-full min-w-0">
+      <div
         style={{
-          border: 0,
-          position: "absolute",
-          inset: 0,
+          position: "relative",
           width: "100%",
-          height: "100%",
+          aspectRatio: "16 / 9",
         }}
-      />
-      {/* Noscript de cortesía */}
-      <noscript>
-        <a
-          href={`https://vimeo.com/${videoId}`}
-          target="_blank"
-          rel="noreferrer"
-        >
-          Ver en Vimeo
-        </a>
-      </noscript>
+      >
+        <iframe
+          key={src}
+          src={src}
+          title={title}
+          allow="autoplay; fullscreen; picture-in-picture"
+          allowFullScreen
+          loading="lazy"
+          style={{
+            border: 0,
+            position: "absolute",
+            inset: 0,
+            width: "100%",
+            height: "100%",
+          }}
+        />
+      </div>
+
+      <a
+        href={video.watchUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="mt-1 inline-block text-sm text-blue-700 underline"
+      >
+        Open in Vimeo
+      </a>
     </div>
   );
 }

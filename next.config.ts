@@ -19,7 +19,7 @@ const nextConfig: NextConfig = {
   },
   experimental: {
     serverActions: {
-      bodySizeLimit: "10mb", // o '20mb', etc.
+      bodySizeLimit: "12mb", // o '20mb', etc.
     },
   },
   allowedDevOrigins: ["192.168.0.105"],
