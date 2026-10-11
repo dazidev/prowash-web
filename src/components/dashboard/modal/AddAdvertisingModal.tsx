@@ -5,7 +5,7 @@ import { AdvertisingCarousel } from "../Carousel/AdvertisingCarousel";
 import { ImageInput } from "../input/ImageInput";
 import { useRef, useState } from "react";
 import { createAdvertising } from "@/actions/advertising/advertising.actions";
-import { AdvertisingForm, ErrorApi } from "@/infrastructure";
+import { AdvertisingForm } from "@/infrastructure";
 import VimeoPlayer from "../video/VimeoPlayer";
 import { useRouter } from "next/navigation";
 import { parseVimeoVideo } from "@/infrastructure/advertising/parseVimeoVideo";

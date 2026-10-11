@@ -13,10 +13,7 @@ export const NumberInput = ({ value, setValue }: Props) => {
   const inc = () => setValue((v) => Math.min(max, v + 1));
 
   return (
-    <form
-      className="w-full flex flex-row gap-5 justify-end items-center mt-3"
-      onSubmit={(e) => e.preventDefault()}
-    >
+    <div className="w-full flex flex-row gap-5 justify-end items-center mt-3">
       <label
         htmlFor="qty"
         className="block mb-2 text-sm font-medium text-gray-900"
@@ -83,6 +80,6 @@ export const NumberInput = ({ value, setValue }: Props) => {
           </svg>
         </button>
       </div>
-    </form>
+    </div>
   );
 };

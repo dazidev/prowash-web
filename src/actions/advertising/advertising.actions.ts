@@ -1,6 +1,7 @@
 "use server";
 
 import {
+  AdItem,
   AdResponse,
   AdResponseArray,
   AdvertisingForm,
@@ -11,7 +12,6 @@ import {
 } from "@/infrastructure";
 import { serverApi } from "@/infrastructure/lib/api/server-api";
 import { API } from "@/interfaces";
-import { revalidateTag } from "next/cache";
 import { updateTag } from "next/cache";
 import { validateAdvertisingImage } from "@/infrastructure/advertising/validateAdvertisingImage";
 import { parseVimeoVideo } from "@/infrastructure/advertising/parseVimeoVideo";
@@ -208,23 +208,30 @@ export async function createAdvertising(
   return true;
 }
 
-export async function getAdvertising() {
+export async function getAdvertising(): Promise<AdItem[] | ErrorApi> {
+  const errorResponse: ErrorApi = {
+    code: "ERROR_GET_ADVERTISING",
+    message: "Unable to load advertising. Please try again later.",
+  };
+
   try {
     const arrayAdv = await fetch(`${API}/api/advertising`, {
       method: "GET",
       headers: { "Content-Type": "application/json" },
       next: { tags: ["advertising"] },
     });
+
+    if (!arrayAdv.ok) return errorResponse;
+
     const response: AdResponseArray = await arrayAdv.json();
 
-    if (!response.success) return response.error;
+    if (response?.success !== true || !Array.isArray(response.data)) {
+      return errorResponse;
+    }
 
     return response.data;
   } catch {
-    return {
-      code: "ERROR_GET_ADVERTISING",
-      message: "There was an unknown problem getting the advertisings.",
-    } as ErrorApi;
+    return errorResponse;
   }
 }
 
